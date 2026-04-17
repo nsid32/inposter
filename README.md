@@ -133,7 +133,8 @@ Go to Settings and add your Anthropic API key. The app runs without it but canno
 ├── data/                         # SQLite database (gitignored)
 ├── scripts/
 │   ├── run.sh                    # Dev server launcher
-│   └── setup.sh                  # One-time setup script
+│   ├── setup.sh                  # One-time setup script
+│   └── release.sh                # Version bump & release
 ```
 
 ---
@@ -155,7 +156,19 @@ npm run db:studio
 
 # Lint
 npm run lint
+
+# Cut a release (bump version, update changelog, commit, tag, push)
+./scripts/release.sh
+
+# Preview what the next release would do
+./scripts/release.sh --dry-run
 ```
+
+The release script uses [Conventional Commits](https://www.conventionalcommits.org/) to determine the version bump automatically and updates `CHANGELOG.md` with grouped entries.
+
+- `fix:` commits → patch (0.1.0 → 0.1.1)
+- `feat:` commits → minor (0.1.0 → 0.2.0)
+- `BREAKING CHANGE` in commit body → major (0.1.0 → 1.0.0)
 
 ---
 

@@ -114,7 +114,7 @@ export function Sidebar() {
             <NavLinks pathname={pathname} onClose={() => setMobileOpen(false)} />
           </div>
           <div className="border-t border-slate-800 px-4 py-4">
-            <p className="text-xs text-slate-500">InPoster v0.1.0</p>
+            <p className="text-xs text-slate-500">InPoster v{process.env.NEXT_PUBLIC_APP_VERSION}</p>
           </div>
         </div>
       </aside>
@@ -129,7 +129,7 @@ export function Sidebar() {
             <NavLinks pathname={pathname} />
           </div>
           <div className="border-t border-slate-800 px-4 py-4">
-            <p className="text-xs text-slate-500">InPoster v0.1.0</p>
+            <p className="text-xs text-slate-500">InPoster v{process.env.NEXT_PUBLIC_APP_VERSION}</p>
           </div>
         </div>
       </aside>
