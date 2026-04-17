@@ -1,0 +1,20 @@
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1775789034542,
+      "tag": "0000_confused_penance",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1775789034543,
+      "tag": "0001_add_image_columns",
+      "breakpoints": true
+    }
+  ]
+}
