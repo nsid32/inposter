@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Settings, Eye, EyeOff, Loader2, ChevronDown, ChevronUp, Webhook, BrainCircuit, SlidersHorizontal, ImageIcon, Search } from "lucide-react";
+import { Settings, Eye, EyeOff, Loader2, ChevronDown, ChevronUp, Webhook, BrainCircuit, SlidersHorizontal, ImageIcon, Search, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -53,6 +53,11 @@ export default function SettingsPage() {
   const [showUnsplashKey, setShowUnsplashKey] = useState(false);
   const [unsplashLoading, setUnsplashLoading] = useState(false);
 
+  // Areas of Interest state
+  const [interests, setInterests] = useState<string[]>([]);
+  const [interestInput, setInterestInput] = useState("");
+  const [interestsLoading, setInterestsLoading] = useState(false);
+
   // Make.com webhook state
   const [webhookLoading, setWebhookLoading] = useState(false);
   const [testingWebhook, setTestingWebhook] = useState(false);
@@ -65,6 +70,8 @@ export default function SettingsPage() {
       if (!res.ok) throw new Error("Failed to load settings");
       const data = await res.json() as { settings: Record<string, string> };
       setSettings((prev) => ({ ...prev, ...data.settings }));
+      const rawInterests = data.settings.areas_of_interest || "";
+      setInterests(rawInterests.split(",").map((s: string) => s.trim()).filter(Boolean));
     } catch {
       toast.error("Failed to load settings");
     } finally {
@@ -227,6 +234,30 @@ export default function SettingsPage() {
       toast.error("Failed to save Unsplash settings");
     } finally {
       setUnsplashLoading(false);
+    }
+  };
+
+  const addInterest = () => {
+    const trimmed = interestInput.trim();
+    if (!trimmed || interests.includes(trimmed) || interests.length >= 10) return;
+    setInterests((prev) => [...prev, trimmed]);
+    setInterestInput("");
+  };
+
+  const saveInterests = async () => {
+    setInterestsLoading(true);
+    try {
+      const res = await fetch("/api/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ settings: { areas_of_interest: interests.join(",") } }),
+      });
+      if (!res.ok) throw new Error("Save failed");
+      toast.success("Areas of interest saved");
+    } catch {
+      toast.error("Failed to save interests");
+    } finally {
+      setInterestsLoading(false);
     }
   };
 
@@ -601,6 +632,87 @@ export default function SettingsPage() {
               className="bg-blue-600 hover:bg-blue-700"
             >
               {unsplashLoading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
+              Save
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Areas of Interest Section */}
+      <Card className="border-slate-800 bg-slate-900 text-white">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base font-semibold">
+            <div className="rounded-md bg-violet-600/20 p-1">
+              <Sparkles className="h-4 w-4 text-violet-400" />
+            </div>
+            Areas of Interest
+          </CardTitle>
+          <CardDescription className="text-sm text-slate-400">
+            Define your professional interests so the Inspire Me feature generates ideas tailored to your domains.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Tag chips */}
+          <div className="flex flex-wrap gap-2">
+            {interests.map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex items-center gap-1 rounded-full bg-violet-600/20 border border-violet-700/50 px-3 py-1 text-xs text-violet-300"
+              >
+                {tag}
+                <button
+                  type="button"
+                  onClick={() => setInterests((prev) => prev.filter((t) => t !== tag))}
+                  className="text-violet-400 hover:text-white ml-0.5"
+                  aria-label={`Remove ${tag}`}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+            {interests.length === 0 && (
+              <p className="text-xs text-slate-500">No interests added yet.</p>
+            )}
+          </div>
+
+          {/* Add input */}
+          <div className="flex gap-2">
+            <Input
+              value={interestInput}
+              onChange={(e) => setInterestInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addInterest();
+                }
+              }}
+              placeholder="e.g. AI/ML, Product Management, Leadership..."
+              className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
+              disabled={interests.length >= 10}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={addInterest}
+              disabled={!interestInput.trim() || interests.length >= 10}
+              className="border-slate-700 text-slate-300 hover:bg-slate-800 shrink-0"
+            >
+              Add
+            </Button>
+          </div>
+          {interests.length >= 10 && (
+            <p className="text-xs text-slate-500">Maximum 10 interests reached.</p>
+          )}
+
+          <div className="flex justify-end">
+            <Button
+              size="sm"
+              onClick={saveInterests}
+              disabled={interestsLoading}
+              className="bg-violet-600 hover:bg-violet-700"
+            >
+              {interestsLoading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
               Save
             </Button>
           </div>

@@ -447,6 +447,7 @@ export default function QueuePage() {
   const [resending, setResending] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [hasUnsplashKey, setHasUnsplashKey] = useState(false);
+  const [publishedDays, setPublishedDays] = useState("30");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -596,6 +597,15 @@ export default function QueuePage() {
 
   const getColumnPosts = (status: string) => posts.filter((p) => p.status === status);
 
+  const getPublishedPosts = () => {
+    const allPublished = posts.filter((p) => p.status === "published");
+    const days = parseInt(publishedDays, 10);
+    if (!publishedDays || isNaN(days) || days <= 0) return allPublished;
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    return allPublished.filter((p) => p.publishedAt && new Date(p.publishedAt) >= cutoff);
+  };
+
   if (loading) {
     return (
       <div className="max-w-5xl mx-auto flex items-center justify-center py-20">
@@ -621,12 +631,28 @@ export default function QueuePage() {
         {/* Kanban */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {COLUMNS.map((col) => {
-            const colPosts = getColumnPosts(col.status);
+            const isPublished = col.status === "published";
+            const colPosts = isPublished ? getPublishedPosts() : getColumnPosts(col.status);
             return (
               <div key={col.status} className="space-y-3">
                 {/* Column Header */}
                 <div className={cn("rounded-lg px-3 py-2 flex items-center justify-between", col.headerColor)}>
-                  <span className="text-sm font-semibold text-white">{col.label}</span>
+                  {isPublished ? (
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="text-sm font-semibold text-white shrink-0">Published</span>
+                      <span className="text-xs text-white/60 shrink-0">· last</span>
+                      <input
+                        type="number"
+                        min={1}
+                        value={publishedDays}
+                        onChange={(e) => setPublishedDays(e.target.value)}
+                        className="w-10 bg-black/20 rounded text-white text-xs px-1 text-center focus:outline-none focus:ring-1 focus:ring-white/30 border-0"
+                      />
+                      <span className="text-xs text-white/60 shrink-0">days</span>
+                    </div>
+                  ) : (
+                    <span className="text-sm font-semibold text-white">{col.label}</span>
+                  )}
                   <span className="text-xs bg-white/20 rounded-full px-2 py-0.5 text-white font-medium">
                     {colPosts.length}
                   </span>

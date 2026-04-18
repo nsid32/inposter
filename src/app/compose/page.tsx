@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { PenLine, Loader2, RefreshCw, Save, Settings as SettingsIcon, ImageIcon, Upload, Wand2, X, Search } from "lucide-react";
+import { PenLine, Loader2, RefreshCw, Save, Settings as SettingsIcon, ImageIcon, Upload, Wand2, X, Search, Sparkles } from "lucide-react";
 import { UnsplashSearchModal } from "@/components/unsplash-search-modal";
+import { IdeasModal } from "@/components/ideas-modal";
 import { toast } from "sonner";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -369,6 +370,7 @@ export default function ComposePage() {
   const [variants, setVariants] = useState<Variant[]>([]);
   const [generating, setGenerating] = useState(false);
   const [hasGenerated, setHasGenerated] = useState(false);
+  const [ideasOpen, setIdeasOpen] = useState(false);
 
   const topicRef = useRef<HTMLTextAreaElement>(null);
 
@@ -404,6 +406,11 @@ export default function ComposePage() {
   useEffect(() => {
     loadSettings();
   }, [loadSettings]);
+
+  const handleIdeaSelect = (title: string) => {
+    setTopic(title);
+    setIdeasOpen(false);
+  };
 
   const generate = useCallback(async () => {
     if (!topic.trim()) {
@@ -520,9 +527,21 @@ export default function ComposePage() {
             <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Content</h2>
 
             <div className="space-y-2">
-              <Label htmlFor="topic" className="text-slate-400 text-xs uppercase tracking-wider">
-                What do you want to post about? *
-              </Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="topic" className="text-slate-400 text-xs uppercase tracking-wider">
+                  What do you want to post about? *
+                </Label>
+                {hasApiKey && (
+                  <button
+                    type="button"
+                    onClick={() => setIdeasOpen(true)}
+                    className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 transition-colors"
+                  >
+                    <Sparkles className="h-3 w-3" />
+                    Inspire Me
+                  </button>
+                )}
+              </div>
               <Textarea
                 ref={topicRef}
                 id="topic"
@@ -705,6 +724,12 @@ export default function ComposePage() {
           )}
         </div>
       </div>
+
+      <IdeasModal
+        open={ideasOpen}
+        onClose={() => setIdeasOpen(false)}
+        onSelect={handleIdeaSelect}
+      />
     </div>
   );
 }

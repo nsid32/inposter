@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   PenLine,
   CheckCircle,
+  Clock,
   Settings,
   Menu,
   X,
@@ -29,6 +30,11 @@ const navItems = [
     label: "Queue",
     href: "/queue",
     icon: CheckCircle,
+  },
+  {
+    label: "Timeline",
+    href: "/timeline",
+    icon: Clock,
   },
   {
     label: "Settings",
