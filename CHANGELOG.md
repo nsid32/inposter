@@ -2,6 +2,12 @@
 
 All notable changes to InPoster are documented here.
 
+## [0.3.0] - 2026-04-17
+
+### Features
+- show draft as VariantCard when editing in Compose (4663b76)
+
+
 ## [0.2.0] - 2026-04-17
 
 ### Features
@@ -10,4 +16,3 @@ All notable changes to InPoster are documented here.
 
 ### Other Changes
 - Initial release (5252891)
-
