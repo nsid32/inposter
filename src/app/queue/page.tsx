@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   CheckCircle,
   Loader2,
@@ -89,6 +90,7 @@ interface PostCardProps {
 }
 
 function PostCard({ post, onStatusChange, onContentChange, onPublish, onImageChange, onDelete, onResend, hasUnsplashKey }: PostCardProps) {
+  const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
   const [editContent, setEditContent] = useState(post.content);
   const [saving, setSaving] = useState(false);
@@ -270,7 +272,7 @@ function PostCard({ post, onStatusChange, onContentChange, onPublish, onImageCha
             <Button
               size="sm"
               variant="outline"
-              onClick={() => { setEditContent(post.content); setEditOpen(true); }}
+              onClick={() => router.push(`/compose?edit=${post.id}`)}
               className="border-slate-700 text-slate-300 hover:bg-slate-800 h-8 text-xs"
             >
               <Edit2 className="h-3 w-3 mr-1" />

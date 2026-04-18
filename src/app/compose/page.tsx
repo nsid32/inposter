@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { PenLine, Loader2, RefreshCw, Save, Settings as SettingsIcon, ImageIcon, Upload, Wand2, X, Search, Sparkles } from "lucide-react";
 import { UnsplashSearchModal } from "@/components/unsplash-search-modal";
 import { IdeasModal } from "@/components/ideas-modal";
@@ -45,18 +46,24 @@ function VariantCard({
   onSave,
   hasOpenAIKey,
   hasUnsplashKey,
+  initialImage,
 }: {
   variant: Variant;
   index: number;
   onSave: (content: string, imageData?: { data: string; mimeType: string }) => void;
   hasOpenAIKey: boolean;
   hasUnsplashKey: boolean;
+  initialImage?: { data: string; mimeType: string };
 }) {
   const [content, setContent] = useState(variant.content);
   const [saving, setSaving] = useState(false);
 
   // Image upload state
-  const [imageState, setImageState] = useState<{ data: string; mimeType: string; previewUrl: string } | null>(null);
+  const [imageState, setImageState] = useState<{ data: string; mimeType: string; previewUrl: string } | null>(
+    initialImage
+      ? { data: initialImage.data, mimeType: initialImage.mimeType, previewUrl: `data:${initialImage.mimeType};base64,${initialImage.data}` }
+      : null
+  );
 
   // AI generation state machine
   type GenStep = "idle" | "open" | "generating" | "preview";
@@ -343,7 +350,16 @@ function VariantCard({
   );
 }
 
-export default function ComposePage() {
+function ComposePageInner() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Edit mode state
+  const [editId, setEditId] = useState<number | null>(null);
+  const [editVariant, setEditVariant] = useState<Variant | null>(null);
+  const [editInitialImage, setEditInitialImage] = useState<{ data: string; mimeType: string } | null>(null);
+  const [editLoading, setEditLoading] = useState(false);
+
   const [hasApiKey, setHasApiKey] = useState<boolean | null>(null);
   const [hasOpenAIKey, setHasOpenAIKey] = useState(false);
   const [hasUnsplashKey, setHasUnsplashKey] = useState(false);
@@ -406,6 +422,57 @@ export default function ComposePage() {
   useEffect(() => {
     loadSettings();
   }, [loadSettings]);
+
+  useEffect(() => {
+    const editParam = searchParams.get("edit");
+    if (!editParam) return;
+    const id = parseInt(editParam, 10);
+    if (isNaN(id)) return;
+
+    setEditLoading(true);
+    fetch(`/api/posts/${id}`)
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Not found");
+        const data = await res.json() as { post: { id: number; content: string; tone: string | null; imageData: string | null; imageMimeType: string | null } };
+        setEditId(data.post.id);
+        setEditVariant({ content: data.post.content });
+        setTone(data.post.tone || "Professional");
+        if (data.post.imageData && data.post.imageMimeType) {
+          setEditInitialImage({ data: data.post.imageData, mimeType: data.post.imageMimeType });
+        }
+      })
+      .catch(() => {
+        toast.error("Draft not found");
+      })
+      .finally(() => {
+        setEditLoading(false);
+      });
+  }, [searchParams]);
+
+  const saveEdit = async (content: string, imageData?: { data: string; mimeType: string }) => {
+    try {
+      const res = await fetch(`/api/posts/${editId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content, tone }),
+      });
+      if (!res.ok) throw new Error("Save failed");
+      if (imageData) {
+        await fetch(`/api/posts/${editId}/image`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image_data: imageData.data, image_mime_type: imageData.mimeType }),
+        });
+      } else if (editInitialImage) {
+        // User had an image but removed it — clear from DB
+        await fetch(`/api/posts/${editId}/image`, { method: "DELETE" });
+      }
+      toast.success("Draft updated");
+      router.push("/queue");
+    } catch {
+      toast.error("Failed to save changes");
+    }
+  };
 
   const handleIdeaSelect = (title: string) => {
     setTopic(title);
@@ -480,7 +547,7 @@ export default function ComposePage() {
     }
   };
 
-  if (hasApiKey === null) {
+  if (hasApiKey === null || editLoading) {
     return (
       <div className="max-w-5xl mx-auto flex items-center justify-center py-20">
         <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
@@ -497,7 +564,9 @@ export default function ComposePage() {
         </div>
         <div>
           <h1 className="text-xl font-bold text-white">Compose</h1>
-          <p className="text-sm text-slate-400">Generate AI-powered LinkedIn posts with Claude</p>
+          <p className="text-sm text-slate-400">
+            {editId !== null ? `Editing draft #${editId}` : "Generate AI-powered LinkedIn posts with Claude"}
+          </p>
         </div>
       </div>
 
@@ -684,7 +753,16 @@ export default function ComposePage() {
 
         {/* Right: Output */}
         <div className="space-y-4">
-          {generating ? (
+          {editId !== null && editVariant !== null ? (
+            <VariantCard
+              variant={editVariant}
+              index={0}
+              onSave={saveEdit}
+              hasOpenAIKey={hasOpenAIKey}
+              hasUnsplashKey={hasUnsplashKey}
+              initialImage={editInitialImage ?? undefined}
+            />
+          ) : generating ? (
             <div className="space-y-4">
               {[0, 1].map((i) => (
                 <div key={i} className="rounded-xl border border-slate-800 bg-slate-900 p-4 space-y-3 animate-pulse">
@@ -731,5 +809,17 @@ export default function ComposePage() {
         onSelect={handleIdeaSelect}
       />
     </div>
+  );
+}
+
+export default function ComposePage() {
+  return (
+    <Suspense fallback={
+      <div className="max-w-5xl mx-auto flex items-center justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+      </div>
+    }>
+      <ComposePageInner />
+    </Suspense>
   );
 }
