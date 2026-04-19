@@ -75,7 +75,7 @@ export function IdeasModal({ open, onClose, onSelect }: IdeasModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="bg-slate-900 border-slate-800 text-white max-w-2xl max-h-[80vh] flex flex-col">
+      <DialogContent className="bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 text-gray-900 dark:text-white max-w-2xl max-h-[80vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-violet-400" />
@@ -88,7 +88,7 @@ export function IdeasModal({ open, onClose, onSelect }: IdeasModalProps) {
           {state === "loading" && (
             <div className="flex flex-col items-center justify-center h-48 gap-3">
               <Loader2 className="h-6 w-6 animate-spin text-violet-400" />
-              <span className="text-slate-400 text-sm">Generating ideas...</span>
+              <span className="text-gray-500 dark:text-slate-400 text-sm">Generating ideas...</span>
             </div>
           )}
 
@@ -99,7 +99,7 @@ export function IdeasModal({ open, onClose, onSelect }: IdeasModalProps) {
                 variant="outline"
                 size="sm"
                 onClick={() => void fetchIdeas()}
-                className="border-slate-700 text-slate-300 hover:bg-slate-800"
+                className="border-gray-300 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
               >
                 <RefreshCw className="h-3 w-3 mr-1.5" />
                 Retry
@@ -111,7 +111,7 @@ export function IdeasModal({ open, onClose, onSelect }: IdeasModalProps) {
             <div className="space-y-5">
               {/* Fresh Ideas */}
               <div>
-                <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">
+                <h3 className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-3">
                   Fresh Ideas
                 </h3>
                 <div className="space-y-2">
@@ -120,15 +120,15 @@ export function IdeasModal({ open, onClose, onSelect }: IdeasModalProps) {
                       key={i}
                       type="button"
                       onClick={() => handleSelect(idea.title)}
-                      className="w-full text-left rounded-lg border border-violet-800/50 bg-slate-800/60 hover:bg-slate-800 hover:border-violet-600 transition-colors p-3 group"
+                      className="w-full text-left rounded-lg border border-violet-800/50 bg-gray-100/60 dark:bg-slate-800/60 hover:bg-gray-100 dark:hover:bg-slate-800 hover:border-violet-600 transition-colors p-3 group"
                     >
                       <div className="flex items-start gap-2.5">
                         <Sparkles className="h-3.5 w-3.5 text-violet-400 mt-0.5 shrink-0" />
                         <div className="min-w-0">
-                          <p className="font-semibold text-white text-sm leading-snug group-hover:text-violet-200 transition-colors">
+                          <p className="font-semibold text-gray-900 dark:text-white text-sm leading-snug group-hover:text-violet-200 transition-colors">
                             {idea.title}
                           </p>
-                          <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">
+                          <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5 leading-relaxed">
                             {idea.description}
                           </p>
                         </div>
@@ -141,7 +141,7 @@ export function IdeasModal({ open, onClose, onSelect }: IdeasModalProps) {
               {/* Continue a Thread — only shown when follow-ups exist */}
               {followUps.length > 0 && (
                 <div>
-                  <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">
+                  <h3 className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-3">
                     Continue a Thread
                   </h3>
                   <div className="space-y-2">
@@ -150,15 +150,15 @@ export function IdeasModal({ open, onClose, onSelect }: IdeasModalProps) {
                         key={i}
                         type="button"
                         onClick={() => handleSelect(followUp.title)}
-                        className="w-full text-left rounded-lg border border-emerald-800/50 bg-slate-800/60 hover:bg-slate-800 hover:border-emerald-600 transition-colors p-3 group"
+                        className="w-full text-left rounded-lg border border-emerald-800/50 bg-gray-100/60 dark:bg-slate-800/60 hover:bg-gray-100 dark:hover:bg-slate-800 hover:border-emerald-600 transition-colors p-3 group"
                       >
                         <div className="flex items-start gap-2.5">
                           <Sparkles className="h-3.5 w-3.5 text-emerald-400 mt-0.5 shrink-0" />
                           <div className="min-w-0">
-                            <p className="font-semibold text-white text-sm leading-snug group-hover:text-emerald-200 transition-colors">
+                            <p className="font-semibold text-gray-900 dark:text-white text-sm leading-snug group-hover:text-emerald-200 transition-colors">
                               {followUp.title}
                             </p>
-                            <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">
+                            <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5 leading-relaxed">
                               {followUp.description}
                             </p>
                             {followUp.basedOn && (
@@ -179,12 +179,12 @@ export function IdeasModal({ open, onClose, onSelect }: IdeasModalProps) {
 
         {/* Footer with Regenerate button */}
         {state === "results" && (
-          <div className="border-t border-slate-800 pt-3 flex justify-center">
+          <div className="border-t border-gray-200 dark:border-slate-800 pt-3 flex justify-center">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => void fetchIdeas()}
-              className="text-slate-400 hover:text-slate-200 hover:bg-slate-800 text-xs"
+              className="text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 text-xs"
             >
               <RefreshCw className="h-3 w-3 mr-1.5" />
               Regenerate

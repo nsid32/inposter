@@ -34,7 +34,7 @@ const MAX_CHARS = 1300;
 function CharCounter({ count }: { count: number }) {
   const isOver = count > MAX_CHARS;
   return (
-    <span className={cn("text-xs tabular-nums", isOver ? "text-red-400 font-semibold" : "text-slate-500")}>
+    <span className={cn("text-xs tabular-nums", isOver ? "text-red-400 font-semibold" : "text-gray-400 dark:text-slate-500")}>
       {count}/{MAX_CHARS}
     </span>
   );
@@ -169,24 +169,24 @@ function VariantCard({
   };
 
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 space-y-3 flex flex-col ring-1 ring-slate-700/50">
+    <div className="rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 space-y-3 flex flex-col ring-1 ring-gray-200/80 dark:ring-slate-700/50">
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-xs font-bold text-white">
           Y
         </div>
         <div>
-          <p className="text-sm font-medium text-white">You</p>
-          <p className="text-xs text-slate-500">LinkedIn</p>
+          <p className="text-sm font-medium text-gray-900 dark:text-white">You</p>
+          <p className="text-xs text-gray-400 dark:text-slate-500">LinkedIn</p>
         </div>
         <div className="ml-auto">
-          <span className="text-xs text-slate-500 font-medium">Variant {index + 1}</span>
+          <span className="text-xs text-gray-400 dark:text-slate-500 font-medium">Variant {index + 1}</span>
         </div>
       </div>
 
       <Textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        className="bg-slate-800 border-slate-700 text-slate-200 text-sm min-h-[160px] resize-y placeholder:text-slate-500"
+        className="bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-700 dark:text-slate-200 text-sm min-h-[160px] resize-y placeholder:text-gray-400 dark:placeholder:text-slate-500"
         placeholder="Post content..."
       />
 
@@ -198,12 +198,12 @@ function VariantCard({
             <img
               src={imageState.previewUrl}
               alt="Post image"
-              className="rounded-lg max-h-48 max-w-full object-cover border border-slate-700"
+              className="rounded-lg max-h-48 max-w-full object-cover border border-gray-200 dark:border-slate-700"
             />
             <button
               type="button"
               onClick={() => setImageState(null)}
-              className="absolute top-1 right-1 rounded-full bg-slate-900/80 p-1 text-slate-400 hover:text-white hover:bg-slate-800"
+              className="absolute top-1 right-1 rounded-full bg-white/80 dark:bg-slate-900/80 p-1 text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800"
             >
               <X className="h-3 w-3" />
             </button>
@@ -216,7 +216,7 @@ function VariantCard({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 border border-slate-700 rounded-lg px-2.5 py-1.5 hover:bg-slate-800 transition-colors"
+              className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 border border-gray-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
             >
               <Upload className="h-3 w-3" />
               Upload Image
@@ -226,7 +226,7 @@ function VariantCard({
               onClick={() => { setGenStep("open"); setGenPrompt(""); }}
               disabled={!hasOpenAIKey}
               title={!hasOpenAIKey ? "Add OpenAI API key in Settings to generate images" : undefined}
-              className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 border border-slate-700 rounded-lg px-2.5 py-1.5 hover:bg-slate-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 border border-gray-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <Wand2 className="h-3 w-3" />
               Generate Image
@@ -236,7 +236,7 @@ function VariantCard({
               onClick={() => setUnsplashOpen(true)}
               disabled={!hasUnsplashKey}
               title={!hasUnsplashKey ? "Add Unsplash access key in Settings to search photos" : undefined}
-              className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 border border-slate-700 rounded-lg px-2.5 py-1.5 hover:bg-slate-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 border border-gray-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <Search className="h-3 w-3" />
               Search Unsplash
@@ -246,10 +246,10 @@ function VariantCard({
 
         {/* AI generation panel */}
         {genStep === "open" && (
-          <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-3 space-y-2">
+          <div className="rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-100/50 dark:bg-slate-800/50 p-3 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-300">Image prompt</span>
-              <button type="button" onClick={() => setGenStep("idle")} className="text-slate-500 hover:text-slate-300">
+              <span className="text-xs font-medium text-gray-600 dark:text-slate-300">Image prompt</span>
+              <button type="button" onClick={() => setGenStep("idle")} className="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300">
                 <X className="h-3 w-3" />
               </button>
             </div>
@@ -257,7 +257,7 @@ function VariantCard({
               value={genPrompt}
               onChange={(e) => setGenPrompt(e.target.value)}
               placeholder="Describe the image you want..."
-              className="bg-slate-800 border-slate-700 text-slate-200 text-xs min-h-[60px] resize-none placeholder:text-slate-500"
+              className="bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-700 dark:text-slate-200 text-xs min-h-[60px] resize-none placeholder:text-gray-400 dark:placeholder:text-slate-500"
             />
             <div className="flex gap-2">
               <Button
@@ -265,7 +265,7 @@ function VariantCard({
                 variant="outline"
                 onClick={handleSuggestPrompt}
                 disabled={loadingPrompt}
-                className="border-slate-600 text-slate-300 hover:bg-slate-700 h-7 text-xs px-2"
+                className="border-gray-400 dark:border-slate-600 text-gray-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-700 h-7 text-xs px-2"
               >
                 {loadingPrompt ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Wand2 className="h-3 w-3 mr-1" />}
                 Suggest
@@ -283,9 +283,9 @@ function VariantCard({
         )}
 
         {genStep === "generating" && (
-          <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-4 flex items-center justify-center gap-2">
+          <div className="rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-100/50 dark:bg-slate-800/50 p-4 flex items-center justify-center gap-2">
             <Loader2 className="h-4 w-4 animate-spin text-violet-400" />
-            <span className="text-xs text-slate-400">Generating image…</span>
+            <span className="text-xs text-gray-500 dark:text-slate-400">Generating image…</span>
           </div>
         )}
 
@@ -294,16 +294,16 @@ function VariantCard({
             <img
               src={`data:${genPreview.mimeType};base64,${genPreview.data}`}
               alt="Generated image preview"
-              className="rounded-lg max-h-48 max-w-full object-cover border border-slate-700 w-full"
+              className="rounded-lg max-h-48 max-w-full object-cover border border-gray-200 dark:border-slate-700 w-full"
             />
             <div className="flex gap-2">
               <Button size="sm" onClick={handleUseGenerated} className="bg-emerald-600 hover:bg-emerald-700 h-7 text-xs">
                 Use This Image
               </Button>
-              <Button size="sm" variant="outline" onClick={() => setGenStep("open")} className="border-slate-700 text-slate-300 hover:bg-slate-800 h-7 text-xs">
+              <Button size="sm" variant="outline" onClick={() => setGenStep("open")} className="border-gray-300 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 h-7 text-xs">
                 Regenerate
               </Button>
-              <Button size="sm" variant="outline" onClick={() => { setGenStep("idle"); setGenPreview(null); }} className="border-slate-700 text-slate-300 hover:bg-slate-800 h-7 text-xs">
+              <Button size="sm" variant="outline" onClick={() => { setGenStep("idle"); setGenPreview(null); }} className="border-gray-300 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 h-7 text-xs">
                 Discard
               </Button>
             </div>
@@ -550,7 +550,7 @@ function ComposePageInner() {
   if (hasApiKey === null || editLoading) {
     return (
       <div className="max-w-5xl mx-auto flex items-center justify-center py-20">
-        <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+        <Loader2 className="h-6 w-6 animate-spin text-gray-500 dark:text-slate-400" />
       </div>
     );
   }
@@ -563,8 +563,8 @@ function ComposePageInner() {
           <PenLine className="h-5 w-5 text-blue-400" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-white">Compose</h1>
-          <p className="text-sm text-slate-400">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Compose</h1>
+          <p className="text-sm text-gray-500 dark:text-slate-400">
             {editId !== null ? `Editing draft #${editId}` : "Generate AI-powered LinkedIn posts with Claude"}
           </p>
         </div>
@@ -592,12 +592,12 @@ function ComposePageInner() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left: Input Form */}
         <div className="space-y-4">
-          <div className="rounded-xl border border-slate-800 bg-slate-900 p-5 space-y-4">
-            <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Content</h2>
+          <div className="rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 space-y-4">
+            <h2 className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-widest">Content</h2>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="topic" className="text-slate-400 text-xs uppercase tracking-wider">
+                <Label htmlFor="topic" className="text-gray-500 dark:text-slate-400 text-xs uppercase tracking-wider">
                   What do you want to post about? *
                 </Label>
                 {hasApiKey && (
@@ -617,12 +617,12 @@ function ComposePageInner() {
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 placeholder="e.g. The biggest lesson I learned from launching my first product..."
-                className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 min-h-[100px]"
+                className="bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500 min-h-[100px]"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="key_points" className="text-slate-400 text-xs uppercase tracking-wider">
+              <Label htmlFor="key_points" className="text-gray-500 dark:text-slate-400 text-xs uppercase tracking-wider">
                 Key points to include
               </Label>
               <Textarea
@@ -630,13 +630,13 @@ function ComposePageInner() {
                 value={keyPoints}
                 onChange={(e) => setKeyPoints(e.target.value)}
                 placeholder="Optional: bullet points, data, anecdotes..."
-                className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 min-h-[80px]"
+                className="bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500 min-h-[80px]"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label htmlFor="audience" className="text-slate-400 text-xs uppercase tracking-wider">
+                <Label htmlFor="audience" className="text-gray-500 dark:text-slate-400 text-xs uppercase tracking-wider">
                   Target audience
                 </Label>
                 <Input
@@ -644,11 +644,11 @@ function ComposePageInner() {
                   value={audience}
                   onChange={(e) => setAudience(e.target.value)}
                   placeholder="e.g. startup founders"
-                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
+                  className="bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="cta" className="text-slate-400 text-xs uppercase tracking-wider">
+                <Label htmlFor="cta" className="text-gray-500 dark:text-slate-400 text-xs uppercase tracking-wider">
                   Call to action
                 </Label>
                 <Input
@@ -656,47 +656,47 @@ function ComposePageInner() {
                   value={cta}
                   onChange={(e) => setCta(e.target.value)}
                   placeholder="e.g. share your story"
-                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
+                  className="bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500"
                 />
               </div>
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-800 bg-slate-900 p-5 space-y-4">
-            <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Style Controls</h2>
+          <div className="rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 space-y-4">
+            <h2 className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-widest">Style Controls</h2>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-slate-400 text-xs uppercase tracking-wider">Tone</Label>
+                <Label className="text-gray-500 dark:text-slate-400 text-xs uppercase tracking-wider">Tone</Label>
                 <Select value={tone} onValueChange={setTone}>
-                  <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                  <SelectTrigger className="bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-700">
-                    <SelectItem value="Professional" className="text-white">Professional</SelectItem>
-                    <SelectItem value="Conversational" className="text-white">Conversational</SelectItem>
-                    <SelectItem value="Inspirational" className="text-white">Inspirational</SelectItem>
-                    <SelectItem value="Provocative" className="text-white">Provocative</SelectItem>
+                  <SelectContent className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
+                    <SelectItem value="Professional" className="text-gray-900 dark:text-white">Professional</SelectItem>
+                    <SelectItem value="Conversational" className="text-gray-900 dark:text-white">Conversational</SelectItem>
+                    <SelectItem value="Inspirational" className="text-gray-900 dark:text-white">Inspirational</SelectItem>
+                    <SelectItem value="Provocative" className="text-gray-900 dark:text-white">Provocative</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label className="text-slate-400 text-xs uppercase tracking-wider">Length</Label>
+                <Label className="text-gray-500 dark:text-slate-400 text-xs uppercase tracking-wider">Length</Label>
                 <Select value={length} onValueChange={setLength}>
-                  <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                  <SelectTrigger className="bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-700">
-                    <SelectItem value="short" className="text-white">Short (≤300)</SelectItem>
-                    <SelectItem value="medium" className="text-white">Medium (≤600)</SelectItem>
-                    <SelectItem value="long" className="text-white">Long (≤1300)</SelectItem>
+                  <SelectContent className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
+                    <SelectItem value="short" className="text-gray-900 dark:text-white">Short (≤300)</SelectItem>
+                    <SelectItem value="medium" className="text-gray-900 dark:text-white">Medium (≤600)</SelectItem>
+                    <SelectItem value="long" className="text-gray-900 dark:text-white">Long (≤1300)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="hashtags" className="text-slate-400 text-xs uppercase tracking-wider">
+                <Label htmlFor="hashtags" className="text-gray-500 dark:text-slate-400 text-xs uppercase tracking-wider">
                   Hashtags (0-10)
                 </Label>
                 <Input
@@ -706,18 +706,18 @@ function ComposePageInner() {
                   max={10}
                   value={hashtags}
                   onChange={(e) => setHashtags(parseInt(e.target.value) || 0)}
-                  className="bg-slate-800 border-slate-700 text-white"
+                  className="bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-slate-400 text-xs uppercase tracking-wider">Emojis</Label>
+                <Label className="text-gray-500 dark:text-slate-400 text-xs uppercase tracking-wider">Emojis</Label>
                 <div className="flex items-center gap-2 pt-2">
                   <Switch
                     checked={emojis}
                     onCheckedChange={setEmojis}
                   />
-                  <span className="text-sm text-slate-400">{emojis ? "On" : "Off"}</span>
+                  <span className="text-sm text-gray-500 dark:text-slate-400">{emojis ? "On" : "Off"}</span>
                 </div>
               </div>
             </div>
@@ -742,7 +742,7 @@ function ComposePageInner() {
                 variant="outline"
                 onClick={generate}
                 disabled={generating}
-                className="border-slate-700 text-slate-300 hover:bg-slate-800"
+                className="border-gray-300 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
               >
                 <RefreshCw className="h-4 w-4 mr-1" />
                 Regenerate
@@ -765,20 +765,20 @@ function ComposePageInner() {
           ) : generating ? (
             <div className="space-y-4">
               {[0, 1].map((i) => (
-                <div key={i} className="rounded-xl border border-slate-800 bg-slate-900 p-4 space-y-3 animate-pulse">
+                <div key={i} className="rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 space-y-3 animate-pulse">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-slate-800" />
+                    <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-slate-800" />
                     <div className="space-y-1">
-                      <div className="h-3 w-16 bg-slate-800 rounded" />
-                      <div className="h-2 w-12 bg-slate-800 rounded" />
+                      <div className="h-3 w-16 bg-gray-100 dark:bg-slate-800 rounded" />
+                      <div className="h-2 w-12 bg-gray-100 dark:bg-slate-800 rounded" />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <div className="h-3 bg-slate-800 rounded w-full" />
-                    <div className="h-3 bg-slate-800 rounded w-5/6" />
-                    <div className="h-3 bg-slate-800 rounded w-4/6" />
-                    <div className="h-3 bg-slate-800 rounded w-5/6" />
-                    <div className="h-3 bg-slate-800 rounded w-3/6" />
+                    <div className="h-3 bg-gray-100 dark:bg-slate-800 rounded w-full" />
+                    <div className="h-3 bg-gray-100 dark:bg-slate-800 rounded w-5/6" />
+                    <div className="h-3 bg-gray-100 dark:bg-slate-800 rounded w-4/6" />
+                    <div className="h-3 bg-gray-100 dark:bg-slate-800 rounded w-5/6" />
+                    <div className="h-3 bg-gray-100 dark:bg-slate-800 rounded w-3/6" />
                   </div>
                 </div>
               ))}
@@ -790,12 +790,12 @@ function ComposePageInner() {
               ))}
             </div>
           ) : (
-            <div className="rounded-xl border border-slate-800 bg-slate-900 flex flex-col items-center justify-center py-20 text-center px-4 h-full min-h-[300px]">
+            <div className="rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col items-center justify-center py-20 text-center px-4 h-full min-h-[300px]">
               <div className="rounded-full bg-blue-600/10 p-5 mb-4">
                 <PenLine className="h-8 w-8 text-blue-400" />
               </div>
-              <p className="text-slate-300 font-medium">Your posts will appear here</p>
-              <p className="text-slate-500 text-sm mt-1 max-w-xs">
+              <p className="text-gray-600 dark:text-slate-300 font-medium">Your posts will appear here</p>
+              <p className="text-gray-400 dark:text-slate-500 text-sm mt-1 max-w-xs">
                 Fill in the form and click Generate to create 2 LinkedIn post variants.
               </p>
             </div>
@@ -816,7 +816,7 @@ export default function ComposePage() {
   return (
     <Suspense fallback={
       <div className="max-w-5xl mx-auto flex items-center justify-center py-20">
-        <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+        <Loader2 className="h-6 w-6 animate-spin text-gray-500 dark:text-slate-400" />
       </div>
     }>
       <ComposePageInner />

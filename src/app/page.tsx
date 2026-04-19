@@ -76,13 +76,17 @@ export default function DashboardPage() {
       icon: PenLine,
       description: "Generate AI-powered LinkedIn content",
       color: "bg-blue-600 hover:bg-blue-700 ring-1 ring-transparent hover:ring-blue-500/30",
+      textColor: "text-white",
+      subTextColor: "text-white/70",
     },
     {
       label: "Review Queue",
       href: "/queue",
       icon: CheckCircle,
       description: "Approve or discard pending drafts",
-      color: "bg-slate-700 hover:bg-slate-600",
+      color: "bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600",
+      textColor: "text-gray-900 dark:text-white",
+      subTextColor: "text-gray-600 dark:text-white/70",
     },
   ];
 
@@ -92,8 +96,8 @@ export default function DashboardPage() {
       <div className="flex items-center gap-4">
         <LogoIcon size={48} />
         <div>
-          <h1 className="text-2xl font-bold text-white">Welcome to InPoster</h1>
-          <p className="text-slate-400 text-sm mt-0.5">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Welcome to InPoster</h1>
+          <p className="text-gray-500 dark:text-slate-400 text-sm mt-0.5">
             Your AI-powered LinkedIn post composer. Generate, refine, and publish with confidence.
           </p>
         </div>
@@ -104,15 +108,15 @@ export default function DashboardPage() {
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className={`rounded-xl border border-slate-800 bg-slate-900 p-5 flex items-start gap-4 ${stat.accent}`}
+            className={`rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 flex items-start gap-4 ${stat.accent}`}
           >
             <div className={`rounded-lg p-2.5 ${stat.bg} shrink-0`}>
               <stat.icon className={`h-5 w-5 ${stat.color}`} />
             </div>
             <div>
-              <p className="text-3xl font-bold text-white">{stat.value}</p>
-              <p className="text-sm font-medium text-slate-200">{stat.label}</p>
-              <p className="text-xs text-slate-500 mt-0.5">{stat.description}</p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+              <p className="text-sm font-medium text-gray-700 dark:text-slate-200">{stat.label}</p>
+              <p className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">{stat.description}</p>
             </div>
           </div>
         ))}
@@ -120,7 +124,7 @@ export default function DashboardPage() {
 
       {/* Quick actions */}
       <div>
-        <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">
+        <h2 className="text-sm font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-3">
           Quick Actions
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -130,10 +134,10 @@ export default function DashboardPage() {
               href={action.href}
               className={`${action.color} rounded-xl p-5 flex flex-col gap-3 transition-colors group`}
             >
-              <action.icon className="h-6 w-6 text-white" />
+              <action.icon className={`h-6 w-6 ${action.textColor}`} />
               <div>
-                <p className="font-semibold text-white text-sm">{action.label}</p>
-                <p className="text-xs text-white/70 mt-0.5">{action.description}</p>
+                <p className={`font-semibold text-sm ${action.textColor}`}>{action.label}</p>
+                <p className={`text-xs mt-0.5 ${action.subTextColor}`}>{action.description}</p>
               </div>
             </Link>
           ))}
@@ -142,21 +146,21 @@ export default function DashboardPage() {
 
       {/* Recent drafts */}
       <div>
-        <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">
+        <h2 className="text-sm font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-3">
           Recent Drafts
         </h2>
-        <div className="rounded-xl border border-slate-800 bg-slate-900">
+        <div className="rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
           {loading ? (
             <div className="flex items-center justify-center py-16">
-              <Loader2 className="h-6 w-6 animate-spin text-slate-500" />
+              <Loader2 className="h-6 w-6 animate-spin text-gray-400 dark:text-slate-500" />
             </div>
           ) : data.recentDrafts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center px-4">
-              <div className="rounded-full bg-slate-800 p-4 mb-4">
-                <PenLine className="h-7 w-7 text-slate-500" />
+              <div className="rounded-full bg-gray-100 dark:bg-slate-800 p-4 mb-4">
+                <PenLine className="h-7 w-7 text-gray-400 dark:text-slate-500" />
               </div>
-              <p className="text-slate-300 font-medium">No drafts yet</p>
-              <p className="text-slate-500 text-sm mt-1 max-w-xs">
+              <p className="text-gray-600 dark:text-slate-300 font-medium">No drafts yet</p>
+              <p className="text-gray-400 dark:text-slate-500 text-sm mt-1 max-w-xs">
                 Head to Compose to generate your first AI-powered LinkedIn post.
               </p>
               <Link
@@ -168,19 +172,19 @@ export default function DashboardPage() {
               </Link>
             </div>
           ) : (
-            <div className="divide-y divide-slate-800">
+            <div className="divide-y divide-gray-200 dark:divide-slate-800">
               {data.recentDrafts.map((draft) => (
                 <Link
                   key={draft.id}
                   href="/queue"
-                  className="flex items-start gap-3 p-4 hover:bg-slate-800/50 transition-colors"
+                  className="flex items-start gap-3 p-4 hover:bg-gray-100/50 dark:hover:bg-slate-800/50 transition-colors"
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-slate-200 truncate">{draft.content}</p>
+                    <p className="text-sm text-gray-700 dark:text-slate-200 truncate">{draft.content}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs text-slate-500">{formatDate(draft.createdAt)}</span>
+                      <span className="text-xs text-gray-400 dark:text-slate-500">{formatDate(draft.createdAt)}</span>
                       {draft.tone && (
-                        <span className="text-xs text-slate-600">· {draft.tone}</span>
+                        <span className="text-xs text-gray-300 dark:text-slate-600">· {draft.tone}</span>
                       )}
                     </div>
                   </div>

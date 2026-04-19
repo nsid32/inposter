@@ -47,7 +47,7 @@ export function Logo({ className, size = 36, showText = true }: LogoProps) {
       <LogoIcon size={size} />
       {showText && (
         <span
-          className="font-bold text-white tracking-tight"
+          className="font-bold text-gray-900 dark:text-white tracking-tight"
           style={{ fontSize: size * 0.55 }}
         >
           InPoster

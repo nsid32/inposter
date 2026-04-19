@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Settings, Eye, EyeOff, Loader2, ChevronDown, ChevronUp, Webhook, BrainCircuit, SlidersHorizontal, ImageIcon, Search, Sparkles } from "lucide-react";
+import { Settings, Eye, EyeOff, Loader2, ChevronDown, ChevronUp, Webhook, BrainCircuit, SlidersHorizontal, ImageIcon, Search, Sparkles, Sun, Moon, Palette } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useTheme } from "@/components/theme-provider";
+import { cn } from "@/lib/utils";
 
 const MASK = "••••••••••••";
 
@@ -39,6 +41,7 @@ const DEFAULT_SETTINGS: SettingsState = {
 };
 
 export default function SettingsPage() {
+  const { theme, setTheme } = useTheme();
   const [settings, setSettings] = useState<SettingsState>(DEFAULT_SETTINGS);
   const [showApiKey, setShowApiKey] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
@@ -268,7 +271,7 @@ export default function SettingsPage() {
   if (loadingSettings) {
     return (
       <div className="max-w-3xl mx-auto flex items-center justify-center py-20">
-        <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+        <Loader2 className="h-6 w-6 animate-spin text-gray-500 dark:text-slate-400" />
       </div>
     );
   }
@@ -277,32 +280,32 @@ export default function SettingsPage() {
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="rounded-lg bg-slate-800 p-2.5">
-          <Settings className="h-5 w-5 text-slate-300" />
+        <div className="rounded-lg bg-gray-100 dark:bg-slate-800 p-2.5">
+          <Settings className="h-5 w-5 text-gray-600 dark:text-slate-300" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-white">Settings</h1>
-          <p className="text-sm text-slate-400">Configure your Make.com and AI integrations</p>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Settings</h1>
+          <p className="text-sm text-gray-500 dark:text-slate-400">Configure your Make.com and AI integrations</p>
         </div>
       </div>
 
       {/* Setup Guide */}
-      <div className="rounded-xl border border-slate-700 bg-slate-900 overflow-hidden">
+      <div className="rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 overflow-hidden">
         <button
           type="button"
           onClick={() => setGuideOpen((v) => !v)}
-          className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 transition-colors"
+          className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
         >
           <span>Quick Setup Guide</span>
           {guideOpen ? (
-            <ChevronUp className="h-4 w-4 text-slate-400" />
+            <ChevronUp className="h-4 w-4 text-gray-500 dark:text-slate-400" />
           ) : (
-            <ChevronDown className="h-4 w-4 text-slate-400" />
+            <ChevronDown className="h-4 w-4 text-gray-500 dark:text-slate-400" />
           )}
         </button>
         {guideOpen && (
-          <div className="px-4 pb-4 border-t border-slate-800">
-            <ol className="mt-3 space-y-2 text-sm text-slate-400 list-decimal list-inside">
+          <div className="px-4 pb-4 border-t border-gray-200 dark:border-slate-800">
+            <ol className="mt-3 space-y-2 text-sm text-gray-500 dark:text-slate-400 list-decimal list-inside">
               <li>
                 Create a{" "}
                 <a
@@ -332,8 +335,53 @@ export default function SettingsPage() {
         )}
       </div>
 
+      {/* Theme Section */}
+      <Card className="border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-900 dark:text-white">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base font-semibold">
+            <div className="rounded-md bg-gray-100 dark:bg-slate-700 p-1">
+              <Palette className="h-4 w-4 text-gray-500 dark:text-slate-300" />
+            </div>
+            Appearance
+          </CardTitle>
+          <CardDescription className="text-sm text-gray-500 dark:text-slate-400">
+            Choose your preferred colour scheme.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => setTheme("dark")}
+              className={cn(
+                "flex flex-1 items-center justify-center gap-2 rounded-lg border-2 px-4 py-3 text-sm font-medium transition-colors",
+                theme === "dark"
+                  ? "border-blue-500 bg-blue-600/10 text-blue-400"
+                  : "border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:border-gray-300 dark:hover:border-slate-600"
+              )}
+            >
+              <Moon className="h-4 w-4" />
+              Dark
+            </button>
+            <button
+              type="button"
+              onClick={() => setTheme("light")}
+              className={cn(
+                "flex flex-1 items-center justify-center gap-2 rounded-lg border-2 px-4 py-3 text-sm font-medium transition-colors",
+                theme === "light"
+                  ? "border-blue-500 bg-blue-600/10 text-blue-400"
+                  : "border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:border-gray-300 dark:hover:border-slate-600"
+              )}
+            >
+              <Sun className="h-4 w-4" />
+              Light
+            </button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Make.com Section */}
-      <Card className="border-slate-800 bg-slate-900 text-white">
+      <Card className="border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-900 dark:text-white">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base font-semibold">
             <div className="rounded-md bg-violet-600/20 p-1">
@@ -341,14 +389,14 @@ export default function SettingsPage() {
             </div>
             Make.com Integration
           </CardTitle>
-          <CardDescription className="text-sm text-slate-400">
+          <CardDescription className="text-sm text-gray-500 dark:text-slate-400">
             Connect your Make.com scenario to publish posts to LinkedIn via webhook.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="make_webhook_url" className="text-sm font-medium text-slate-300">Webhook URL</Label>
+              <Label htmlFor="make_webhook_url" className="text-sm font-medium text-gray-600 dark:text-slate-300">Webhook URL</Label>
               {settings.make_webhook_url ? (
                 <span className="text-xs font-medium text-emerald-400">Configured</span>
               ) : (
@@ -360,16 +408,16 @@ export default function SettingsPage() {
               value={settings.make_webhook_url}
               onChange={(e) => update("make_webhook_url", e.target.value)}
               placeholder="https://hook.eu1.make.com/..."
-              className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
+              className="bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500"
             />
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-gray-500 dark:text-slate-500">
               Paste your Make.com webhook URL here. Create a webhook trigger scenario in Make.com, then paste the URL it gives you.
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="make_webhook_api_key" className="text-sm font-medium text-slate-300">
-              API Key <span className="text-slate-500 font-normal">(optional)</span>
+            <Label htmlFor="make_webhook_api_key" className="text-sm font-medium text-gray-600 dark:text-slate-300">
+              API Key <span className="text-gray-400 dark:text-slate-500 font-normal">(optional)</span>
             </Label>
             <div className="relative">
               <Input
@@ -378,18 +426,18 @@ export default function SettingsPage() {
                 value={settings.make_webhook_api_key}
                 onChange={(e) => update("make_webhook_api_key", e.target.value)}
                 placeholder="Required if your webhook has API Key authentication"
-                className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 pr-10"
+                className="bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500 pr-10"
               />
               <button
                 type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
                 onClick={() => setShowWebhookKey(!showWebhookKey)}
               >
                 {showWebhookKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-            <p className="text-xs text-slate-500">
-              If your Make.com webhook has &quot;API Key authentication&quot; enabled, enter the key here. It will be sent as the <code className="text-slate-400">x-make-apikey</code> header.
+            <p className="text-xs text-gray-500 dark:text-slate-500">
+              If your Make.com webhook has &quot;API Key authentication&quot; enabled, enter the key here. It will be sent as the <code className="text-gray-400 dark:text-slate-400">x-make-apikey</code> header.
             </p>
           </div>
 
@@ -408,7 +456,7 @@ export default function SettingsPage() {
               size="sm"
               onClick={testWebhook}
               disabled={testingWebhook || !settings.make_webhook_url}
-              className="border-slate-700 text-slate-300 hover:bg-slate-800"
+              className="border-gray-300 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
             >
               {testingWebhook ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
               Test Webhook
@@ -424,7 +472,7 @@ export default function SettingsPage() {
       </Card>
 
       {/* AI Provider Section */}
-      <Card className="border-slate-800 bg-slate-900 text-white">
+      <Card className="border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-900 dark:text-white">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base font-semibold">
             <div className="rounded-md bg-emerald-600/20 p-1">
@@ -432,13 +480,13 @@ export default function SettingsPage() {
             </div>
             AI Provider (Anthropic)
           </CardTitle>
-          <CardDescription className="text-sm text-slate-400">
+          <CardDescription className="text-sm text-gray-500 dark:text-slate-400">
             Configure Claude to power your post generation.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="anthropic_api_key" className="text-sm font-medium text-slate-300">
+            <Label htmlFor="anthropic_api_key" className="text-sm font-medium text-gray-600 dark:text-slate-300">
               Anthropic API Key
             </Label>
             <div className="relative">
@@ -448,17 +496,17 @@ export default function SettingsPage() {
                 value={settings.anthropic_api_key}
                 onChange={(e) => update("anthropic_api_key", e.target.value)}
                 placeholder="sk-ant-..."
-                className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 pr-10"
+                className="bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500 pr-10"
               />
               <button
                 type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
                 onClick={() => setShowApiKey(!showApiKey)}
               >
                 {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-gray-500 dark:text-slate-500">
               Log in to{" "}
               <a
                 href="https://console.anthropic.com/settings/keys"
@@ -473,24 +521,24 @@ export default function SettingsPage() {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-slate-300">Claude Model</Label>
+            <Label className="text-sm font-medium text-gray-600 dark:text-slate-300">Claude Model</Label>
             <Select
               value={settings.claude_model}
               onValueChange={(v) => update("claude_model", v)}
             >
-              <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+              <SelectTrigger className="bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-700">
-                <SelectItem value="claude-sonnet-4-6" className="text-white">
+              <SelectContent className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
+                <SelectItem value="claude-sonnet-4-6" className="text-gray-900 dark:text-white">
                   Claude Sonnet 4.6 — Recommended
                 </SelectItem>
-                <SelectItem value="claude-haiku-4-5-20251001" className="text-white">
+                <SelectItem value="claude-haiku-4-5-20251001" className="text-gray-900 dark:text-white">
                   Claude Haiku 4.5 — Faster &amp; cheaper
                 </SelectItem>
               </SelectContent>
             </Select>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-gray-500 dark:text-slate-500">
               Sonnet 4.5 produces higher-quality posts. Haiku 4.5 is faster and cheaper.
             </p>
           </div>
@@ -501,7 +549,7 @@ export default function SettingsPage() {
               size="sm"
               onClick={testAI}
               disabled={testingAi}
-              className="border-slate-700 text-slate-300 hover:bg-slate-800"
+              className="border-gray-300 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
             >
               {testingAi ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
               Test Connection
@@ -520,7 +568,7 @@ export default function SettingsPage() {
       </Card>
 
       {/* Image Generation Section */}
-      <Card className="border-slate-800 bg-slate-900 text-white">
+      <Card className="border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-900 dark:text-white">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base font-semibold">
             <div className="rounded-md bg-violet-600/20 p-1">
@@ -528,13 +576,13 @@ export default function SettingsPage() {
             </div>
             Image Generation
           </CardTitle>
-          <CardDescription className="text-sm text-slate-400">
+          <CardDescription className="text-sm text-gray-500 dark:text-slate-400">
             Generate images for your posts using DALL-E 3. Requires an OpenAI API key.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="openai_api_key" className="text-sm font-medium text-slate-300">
+            <Label htmlFor="openai_api_key" className="text-sm font-medium text-gray-600 dark:text-slate-300">
               OpenAI API Key
             </Label>
             <div className="relative">
@@ -544,17 +592,17 @@ export default function SettingsPage() {
                 value={settings.openai_api_key}
                 onChange={(e) => update("openai_api_key", e.target.value)}
                 placeholder="sk-..."
-                className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 pr-10"
+                className="bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500 pr-10"
               />
               <button
                 type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
                 onClick={() => setShowOpenAIKey(!showOpenAIKey)}
               >
                 {showOpenAIKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-gray-500 dark:text-slate-500">
               Get your key at{" "}
               <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
                 platform.openai.com/api-keys
@@ -577,7 +625,7 @@ export default function SettingsPage() {
       </Card>
 
       {/* Unsplash Section */}
-      <Card className="border-slate-800 bg-slate-900 text-white">
+      <Card className="border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-900 dark:text-white">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base font-semibold">
             <div className="rounded-md bg-teal-600/20 p-1">
@@ -585,13 +633,13 @@ export default function SettingsPage() {
             </div>
             Unsplash Photo Search
           </CardTitle>
-          <CardDescription className="text-sm text-slate-400">
+          <CardDescription className="text-sm text-gray-500 dark:text-slate-400">
             Search and attach stock photos from Unsplash to your posts. Requires an Unsplash access key.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="unsplash_access_key" className="text-sm font-medium text-slate-300">
+            <Label htmlFor="unsplash_access_key" className="text-sm font-medium text-gray-600 dark:text-slate-300">
               Unsplash Access Key
             </Label>
             <div className="relative">
@@ -601,17 +649,17 @@ export default function SettingsPage() {
                 value={settings.unsplash_access_key}
                 onChange={(e) => update("unsplash_access_key", e.target.value)}
                 placeholder="Your Unsplash access key..."
-                className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 pr-10"
+                className="bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500 pr-10"
               />
               <button
                 type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
                 onClick={() => setShowUnsplashKey(!showUnsplashKey)}
               >
                 {showUnsplashKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-gray-500 dark:text-slate-500">
               Get your access key at{" "}
               <a
                 href="https://unsplash.com/developers"
@@ -639,7 +687,7 @@ export default function SettingsPage() {
       </Card>
 
       {/* Areas of Interest Section */}
-      <Card className="border-slate-800 bg-slate-900 text-white">
+      <Card className="border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-900 dark:text-white">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base font-semibold">
             <div className="rounded-md bg-violet-600/20 p-1">
@@ -647,7 +695,7 @@ export default function SettingsPage() {
             </div>
             Areas of Interest
           </CardTitle>
-          <CardDescription className="text-sm text-slate-400">
+          <CardDescription className="text-sm text-gray-500 dark:text-slate-400">
             Define your professional interests so the Inspire Me feature generates ideas tailored to your domains.
           </CardDescription>
         </CardHeader>
@@ -671,7 +719,7 @@ export default function SettingsPage() {
               </span>
             ))}
             {interests.length === 0 && (
-              <p className="text-xs text-slate-500">No interests added yet.</p>
+              <p className="text-xs text-gray-400 dark:text-slate-500">No interests added yet.</p>
             )}
           </div>
 
@@ -687,7 +735,7 @@ export default function SettingsPage() {
                 }
               }}
               placeholder="e.g. AI/ML, Product Management, Leadership..."
-              className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
+              className="bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500"
               disabled={interests.length >= 10}
             />
             <Button
@@ -696,13 +744,13 @@ export default function SettingsPage() {
               size="sm"
               onClick={addInterest}
               disabled={!interestInput.trim() || interests.length >= 10}
-              className="border-slate-700 text-slate-300 hover:bg-slate-800 shrink-0"
+              className="border-gray-300 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 shrink-0"
             >
               Add
             </Button>
           </div>
           {interests.length >= 10 && (
-            <p className="text-xs text-slate-500">Maximum 10 interests reached.</p>
+            <p className="text-xs text-gray-400 dark:text-slate-500">Maximum 10 interests reached.</p>
           )}
 
           <div className="flex justify-end">
@@ -720,57 +768,57 @@ export default function SettingsPage() {
       </Card>
 
       {/* General Preferences */}
-      <Card className="border-slate-800 bg-slate-900 text-white">
+      <Card className="border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-900 dark:text-white">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base font-semibold">
-            <div className="rounded-md bg-slate-700 p-1">
-              <SlidersHorizontal className="h-4 w-4 text-slate-300" />
+            <div className="rounded-md bg-gray-100 dark:bg-slate-700 p-1">
+              <SlidersHorizontal className="h-4 w-4 text-gray-600 dark:text-slate-300" />
             </div>
             General Preferences
           </CardTitle>
-          <CardDescription className="text-sm text-slate-400">
+          <CardDescription className="text-sm text-gray-500 dark:text-slate-400">
             Default settings for post generation.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-300">Default Tone</Label>
+              <Label className="text-sm font-medium text-gray-600 dark:text-slate-300">Default Tone</Label>
               <Select
                 value={settings.default_tone}
                 onValueChange={(v) => update("default_tone", v)}
               >
-                <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                <SelectTrigger className="bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
-                  <SelectItem value="Professional" className="text-white">Professional</SelectItem>
-                  <SelectItem value="Conversational" className="text-white">Conversational</SelectItem>
-                  <SelectItem value="Inspirational" className="text-white">Inspirational</SelectItem>
-                  <SelectItem value="Provocative" className="text-white">Provocative</SelectItem>
+                <SelectContent className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
+                  <SelectItem value="Professional" className="text-gray-900 dark:text-white">Professional</SelectItem>
+                  <SelectItem value="Conversational" className="text-gray-900 dark:text-white">Conversational</SelectItem>
+                  <SelectItem value="Inspirational" className="text-gray-900 dark:text-white">Inspirational</SelectItem>
+                  <SelectItem value="Provocative" className="text-gray-900 dark:text-white">Provocative</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-300">Default Post Length</Label>
+              <Label className="text-sm font-medium text-gray-600 dark:text-slate-300">Default Post Length</Label>
               <Select
                 value={settings.default_length}
                 onValueChange={(v) => update("default_length", v)}
               >
-                <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                <SelectTrigger className="bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
-                  <SelectItem value="short" className="text-white">Short (≤300 chars)</SelectItem>
-                  <SelectItem value="medium" className="text-white">Medium (≤600 chars)</SelectItem>
-                  <SelectItem value="long" className="text-white">Long (≤1,300 chars)</SelectItem>
+                <SelectContent className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
+                  <SelectItem value="short" className="text-gray-900 dark:text-white">Short (≤300 chars)</SelectItem>
+                  <SelectItem value="medium" className="text-gray-900 dark:text-white">Medium (≤600 chars)</SelectItem>
+                  <SelectItem value="long" className="text-gray-900 dark:text-white">Long (≤1,300 chars)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="default_hashtags" className="text-sm font-medium text-slate-300">
+              <Label htmlFor="default_hashtags" className="text-sm font-medium text-gray-600 dark:text-slate-300">
                 Default Hashtag Count
               </Label>
               <Input
@@ -780,18 +828,18 @@ export default function SettingsPage() {
                 max="10"
                 value={settings.default_hashtags}
                 onChange={(e) => update("default_hashtags", e.target.value)}
-                className="bg-slate-800 border-slate-700 text-white"
+                className="bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white"
               />
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-300">Emoji Usage</Label>
+              <Label className="text-sm font-medium text-gray-600 dark:text-slate-300">Emoji Usage</Label>
               <div className="flex items-center gap-3 pt-2">
                 <Switch
                   checked={settings.emoji_usage === "true"}
                   onCheckedChange={(checked) => update("emoji_usage", String(checked))}
                 />
-                <span className="text-sm text-slate-400">
+                <span className="text-sm text-gray-500 dark:text-slate-400">
                   {settings.emoji_usage === "true" ? "Enabled" : "Disabled"}
                 </span>
               </div>

@@ -113,7 +113,7 @@ export function UnsplashSearchModal({ open, onClose, onSelect }: UnsplashSearchM
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="bg-slate-900 border-slate-800 text-white max-w-2xl max-h-[80vh] flex flex-col">
+      <DialogContent className="bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 text-gray-900 dark:text-white max-w-2xl max-h-[80vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Search className="h-4 w-4 text-teal-400" />
@@ -130,7 +130,7 @@ export function UnsplashSearchModal({ open, onClose, onSelect }: UnsplashSearchM
             onKeyDown={handleKeyDown}
             placeholder="Search for photos..."
             disabled={isSearching || isAttaching}
-            className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 flex-1"
+            className="bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500 flex-1"
           />
           <Button
             onClick={handleSearch}
@@ -149,20 +149,20 @@ export function UnsplashSearchModal({ open, onClose, onSelect }: UnsplashSearchM
         <div className="flex-1 overflow-y-auto min-h-[200px]">
           {state === "idle" && (
             <div className="flex items-center justify-center h-48">
-              <p className="text-slate-500 text-sm">Search for photos to get started</p>
+              <p className="text-gray-400 dark:text-slate-500 text-sm">Search for photos to get started</p>
             </div>
           )}
 
           {isSearching && (
             <div className="flex items-center justify-center h-48 gap-2">
               <Loader2 className="h-5 w-5 animate-spin text-teal-400" />
-              <span className="text-slate-400 text-sm">Searching...</span>
+              <span className="text-gray-500 dark:text-slate-400 text-sm">Searching...</span>
             </div>
           )}
 
           {(state === "results" || isAttaching) && photos.length === 0 && (
             <div className="flex items-center justify-center h-48">
-              <p className="text-slate-500 text-sm">No photos found for your query</p>
+              <p className="text-gray-400 dark:text-slate-500 text-sm">No photos found for your query</p>
             </div>
           )}
 
@@ -176,7 +176,7 @@ export function UnsplashSearchModal({ open, onClose, onSelect }: UnsplashSearchM
                     type="button"
                     onClick={() => handleSelectPhoto(photo)}
                     disabled={isAttaching}
-                    className="group relative rounded-lg overflow-hidden border border-slate-700 hover:border-teal-500 transition-colors text-left disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="group relative rounded-lg overflow-hidden border border-gray-300 dark:border-slate-700 hover:border-teal-500 transition-colors text-left disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     <div className="relative">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -200,7 +200,7 @@ export function UnsplashSearchModal({ open, onClose, onSelect }: UnsplashSearchM
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="text-xs text-slate-400 hover:text-slate-200 truncate block"
+                        className="text-xs text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 truncate block"
                       >
                         {photo.photographer_name}
                       </a>
@@ -213,8 +213,8 @@ export function UnsplashSearchModal({ open, onClose, onSelect }: UnsplashSearchM
         </div>
 
         {/* Attribution footer */}
-        <div className="border-t border-slate-800 pt-3">
-          <p className="text-xs text-slate-500 text-center">
+        <div className="border-t border-gray-200 dark:border-slate-800 pt-3">
+          <p className="text-xs text-gray-400 dark:text-slate-500 text-center">
             Photos from{" "}
             <a
               href="https://unsplash.com"

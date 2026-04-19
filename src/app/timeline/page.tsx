@@ -88,7 +88,7 @@ export default function TimelinePage() {
   if (loading) {
     return (
       <div className="max-w-3xl mx-auto flex items-center justify-center py-20">
-        <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+        <Loader2 className="h-6 w-6 animate-spin text-gray-500 dark:text-slate-400" />
       </div>
     );
   }
@@ -103,19 +103,19 @@ export default function TimelinePage() {
           <Clock className="h-5 w-5 text-violet-400" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-white">Timeline</h1>
-          <p className="text-sm text-slate-400">Your published posts, newest first</p>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Timeline</h1>
+          <p className="text-sm text-gray-500 dark:text-slate-400">Your published posts, newest first</p>
         </div>
       </div>
 
       {/* Empty state */}
       {monthGroups.length === 0 && (
-        <div className="rounded-xl border border-slate-800 border-dashed flex flex-col items-center justify-center py-16 text-center px-6 gap-3">
-          <div className="rounded-full bg-slate-800 p-4">
-            <Clock className="h-6 w-6 text-slate-500" />
+        <div className="rounded-xl border border-gray-200 dark:border-slate-800 border-dashed flex flex-col items-center justify-center py-16 text-center px-6 gap-3">
+          <div className="rounded-full bg-gray-100 dark:bg-slate-800 p-4">
+            <Clock className="h-6 w-6 text-gray-400 dark:text-slate-500" />
           </div>
-          <p className="text-sm font-medium text-slate-400">No published posts yet</p>
-          <p className="text-xs text-slate-600">
+          <p className="text-sm font-medium text-gray-500 dark:text-slate-400">No published posts yet</p>
+          <p className="text-xs text-gray-300 dark:text-slate-600">
             Posts you publish will appear here, grouped by month.
           </p>
         </div>
@@ -125,16 +125,16 @@ export default function TimelinePage() {
       {monthGroups.length > 0 && (
         <div className="relative pl-6">
           {/* Axis line */}
-          <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-slate-700" />
+          <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-slate-700" />
 
           {monthGroups.map((group) => (
             <div key={group.month} className="mb-8">
               {/* Month header */}
               <div className="flex items-center gap-3 mb-4">
-                <div className="relative z-10 w-8 h-8 rounded-full bg-slate-800 border-2 border-slate-600 flex items-center justify-center shrink-0 -ml-6">
-                  <Calendar className="h-3.5 w-3.5 text-slate-400" />
+                <div className="relative z-10 w-8 h-8 rounded-full bg-gray-100 dark:bg-slate-800 border-2 border-gray-400 dark:border-slate-600 flex items-center justify-center shrink-0 -ml-6">
+                  <Calendar className="h-3.5 w-3.5 text-gray-500 dark:text-slate-400" />
                 </div>
-                <span className="text-sm font-semibold text-slate-300">{group.month}</span>
+                <span className="text-sm font-semibold text-gray-600 dark:text-slate-300">{group.month}</span>
               </div>
 
               {/* Posts in this month */}
@@ -145,22 +145,22 @@ export default function TimelinePage() {
                   <div key={post.id} className="flex items-start gap-3">
                     {/* Dot on axis */}
                     <div className="shrink-0 -ml-6 mt-3.5">
-                      <div className="relative z-10 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-slate-950 ml-[11px]" />
+                      <div className="relative z-10 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-gray-50 dark:ring-slate-950 ml-[11px]" />
                     </div>
 
                     {/* Post card */}
-                    <div className="flex-1 rounded-xl border border-slate-800 bg-slate-900/60 p-3 space-y-2 hover:border-slate-700 transition-colors">
+                    <div className="flex-1 rounded-xl border border-gray-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 p-3 space-y-2 hover:border-gray-300 dark:hover:border-slate-700 transition-colors">
                       {/* Image thumbnail */}
                       {post.imageData && (
                         <img
                           src={`data:${post.imageMimeType};base64,${post.imageData}`}
                           alt="Post image"
-                          className="w-full max-h-32 object-cover rounded-lg border border-slate-700"
+                          className="w-full max-h-32 object-cover rounded-lg border border-gray-200 dark:border-slate-700"
                         />
                       )}
 
                       {/* Content */}
-                      <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">
+                      <p className="text-sm text-gray-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">
                         {post.content.length <= 100 ? (
                           post.content
                         ) : isExpanded ? (
@@ -189,14 +189,14 @@ export default function TimelinePage() {
                       {/* Footer: date + tone */}
                       <div className="flex items-center gap-2 flex-wrap">
                         {post.publishedAt && (
-                          <span className="text-xs text-slate-500">
+                          <span className="text-xs text-gray-400 dark:text-slate-500">
                             {formatPublishDate(post.publishedAt)}
                           </span>
                         )}
                         {post.tone && (
                           <Badge
                             variant="outline"
-                            className="text-xs border-slate-700 text-slate-400"
+                            className="text-xs border-gray-300 dark:border-slate-700 text-gray-500 dark:text-slate-400"
                           >
                             {post.tone}
                           </Badge>
