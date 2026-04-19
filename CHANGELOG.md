@@ -2,6 +2,12 @@
 
 All notable changes to InPoster are documented here.
 
+## [0.4.1] - 2026-04-19
+
+### Other Changes
+- docs: add screenshots to README (e17b4c2)
+
+
 ## [0.4.0] - 2026-04-19
 
 ### Features

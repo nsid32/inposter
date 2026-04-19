@@ -1,6 +1,6 @@
 {
   "name": "inposter",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Local-first AI writing assistant for LinkedIn posts",
   "license": "MIT",
   "scripts": {
