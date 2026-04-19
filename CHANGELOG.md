@@ -2,6 +2,12 @@
 
 All notable changes to InPoster are documented here.
 
+## [0.4.0] - 2026-04-19
+
+### Features
+- add light/dark theme toggle with persistence (3ab4d2f)
+
+
 ## [0.3.0] - 2026-04-17
 
 ### Features
