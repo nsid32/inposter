@@ -47,6 +47,43 @@ if ! grep -q "^ENCRYPTION_KEY=" .env.local 2>/dev/null; then
             echo "ENCRYPTION_KEY=$ENCRYPTION_KEY" >> .env.local
         fi
         echo "✅ Generated ENCRYPTION_KEY in .env.local"
+
+        # If a database already exists, re-encrypt any settings that were stored
+        # using the old hostname-based fallback key so they remain readable.
+        if [ -f data/inposter.db ]; then
+            node -e "
+const crypto = require('crypto');
+const os = require('os');
+const Database = require('better-sqlite3');
+const SALT = 'inposter-local-encryption';
+const oldKey = crypto.scryptSync(os.hostname(), SALT, 32);
+const newKey = crypto.scryptSync('$ENCRYPTION_KEY', SALT, 32);
+function decrypt(enc, key) {
+  const [ivH, tagH, dataH] = enc.split(':');
+  const d = crypto.createDecipheriv('aes-256-gcm', key, Buffer.from(ivH,'hex'));
+  d.setAuthTag(Buffer.from(tagH,'hex'));
+  return d.update(Buffer.from(dataH,'hex')) + d.final('utf8');
+}
+function encrypt(text, key) {
+  const iv = crypto.randomBytes(16);
+  const c = crypto.createCipheriv('aes-256-gcm', key, iv);
+  const enc = Buffer.concat([c.update(text,'utf8'), c.final()]);
+  return iv.toString('hex')+':'+c.getAuthTag().toString('hex')+':'+enc.toString('hex');
+}
+const db = new Database('data/inposter.db');
+const rows = db.prepare('SELECT key, value FROM settings WHERE encrypted = 1').all();
+let migrated = 0;
+for (const row of rows) {
+  try {
+    const plain = decrypt(row.value, oldKey);
+    db.prepare('UPDATE settings SET value = ? WHERE key = ?').run(encrypt(plain, newKey), row.key);
+    migrated++;
+  } catch(e) { /* already on new key or unreadable, skip */ }
+}
+db.close();
+if (migrated > 0) console.log('✅ Re-encrypted ' + migrated + ' existing setting(s) to new key');
+" 2>/dev/null || true
+        fi
     fi
 else
     echo "ℹ️  ENCRYPTION_KEY already set in .env.local, skipping"
