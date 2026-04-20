@@ -703,9 +703,9 @@ function ComposePageInner() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
-                    <SelectItem value="short" className="text-gray-900 dark:text-white">Short (≤300)</SelectItem>
-                    <SelectItem value="medium" className="text-gray-900 dark:text-white">Medium (≤600)</SelectItem>
-                    <SelectItem value="long" className="text-gray-900 dark:text-white">Long (≤1300)</SelectItem>
+                    <SelectItem value="short" className="text-gray-900 dark:text-white">Short (~300)</SelectItem>
+                    <SelectItem value="medium" className="text-gray-900 dark:text-white">Medium (~600)</SelectItem>
+                    <SelectItem value="long" className="text-gray-900 dark:text-white">Long (~1300)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
