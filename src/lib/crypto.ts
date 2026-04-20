@@ -1,6 +1,13 @@
 import crypto from "crypto";
 import os from "os";
 
+if (!process.env.ENCRYPTION_KEY) {
+  console.warn(
+    "[InPoster] ENCRYPTION_KEY not set in .env.local — using machine hostname as encryption key. " +
+    "Run ./scripts/setup.sh to generate a secure key."
+  );
+}
+
 // Derive a machine-specific key from hostname + a salt
 const SALT = "inposter-local-encryption";
 const KEY = crypto.scryptSync(

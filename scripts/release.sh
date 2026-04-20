@@ -125,7 +125,7 @@ echo "✅ Updated CHANGELOG.md"
 
 # Commit, tag, push
 git add package.json CHANGELOG.md
-git commit -m "chore(release): $TAG"
+git commit -m "release: $TAG"
 git tag "$TAG"
 echo "✅ Created commit and tag $TAG"
 

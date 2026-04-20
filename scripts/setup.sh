@@ -36,6 +36,20 @@ else
     echo "ℹ️  .env.local already exists, skipping"
 fi
 
+# Generate ENCRYPTION_KEY if not already set in .env.local
+if ! grep -q "^ENCRYPTION_KEY=" .env.local 2>/dev/null || grep -q "^# ENCRYPTION_KEY=" .env.local 2>/dev/null; then
+    if node -e "process.exit(0)" 2>/dev/null; then
+        ENCRYPTION_KEY=$(node -e "process.stdout.write(require('crypto').randomBytes(32).toString('hex'))")
+        # Replace the commented-out line or append
+        if grep -q "ENCRYPTION_KEY" .env.local; then
+            sed -i.bak "s/.*ENCRYPTION_KEY.*/ENCRYPTION_KEY=$ENCRYPTION_KEY/" .env.local && rm -f .env.local.bak
+        else
+            echo "ENCRYPTION_KEY=$ENCRYPTION_KEY" >> .env.local
+        fi
+        echo "✅ Generated ENCRYPTION_KEY in .env.local"
+    fi
+fi
+
 # Create data directory
 mkdir -p data
 

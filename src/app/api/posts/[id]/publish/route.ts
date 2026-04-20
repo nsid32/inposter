@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { db, schema } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { getSetting } from "@/lib/settings";
+import path from "path";
+import fs from "fs";
 
 function mimeToExtension(mime: string): string {
   const map: Record<string, string> = {
@@ -20,6 +22,9 @@ export async function POST(
 ) {
   try {
     const id = parseInt(params.id);
+    if (isNaN(id)) {
+      return NextResponse.json({ error: "Invalid post ID" }, { status: 400 });
+    }
     const post = db.select().from(schema.posts).where(eq(schema.posts.id, id)).get();
 
     if (!post) {
@@ -37,15 +42,32 @@ export async function POST(
     const webhookApiKey = await getSetting("make_webhook_api_key");
     const publishedAt = new Date().toISOString();
 
+    // Resolve image: prefer file on disk, fall back to legacy imageData in DB
+    let resolvedImageData: string | null = null;
+    let resolvedMimeType: string | null = post.imageMimeType ?? null;
+
+    if (post.imagePath) {
+      try {
+        const filePath = path.join(process.cwd(), post.imagePath);
+        if (fs.existsSync(filePath)) {
+          resolvedImageData = fs.readFileSync(filePath).toString("base64");
+        }
+      } catch {
+        // If file read fails, proceed without image rather than blocking publish
+      }
+    } else if (post.imageData) {
+      resolvedImageData = post.imageData;
+    }
+
     const payload = {
       post_id: post.id,
       content: post.content,
       tone: post.tone,
       published_at: publishedAt,
-      ...(post.imageData ? {
-        image_data: post.imageData,
-        image_mime_type: post.imageMimeType,
-        image_extension: post.imageMimeType ? mimeToExtension(post.imageMimeType) : null,
+      ...(resolvedImageData ? {
+        image_data: resolvedImageData,
+        image_mime_type: resolvedMimeType,
+        image_extension: resolvedMimeType ? mimeToExtension(resolvedMimeType) : null,
       } : {}),
     };
 
@@ -76,8 +98,6 @@ export async function POST(
       .update(schema.posts)
       .set({
         status: "published",
-        linkedinId: null,
-        linkedinUrl: null,
         publishedAt: now,
         updatedAt: now,
       })

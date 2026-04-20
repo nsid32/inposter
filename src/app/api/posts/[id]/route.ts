@@ -8,13 +8,17 @@ export async function GET(
 ) {
   try {
     const id = parseInt(params.id);
+    if (isNaN(id)) {
+      return NextResponse.json({ error: "Invalid post ID" }, { status: 400 });
+    }
     const post = db.select().from(schema.posts).where(eq(schema.posts.id, id)).get();
 
     if (!post) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ post });
+    const result = { ...post, imageData: undefined, hasImage: !!(post.imagePath || post.imageData) };
+    return NextResponse.json({ post: result });
   } catch (error) {
     console.error("Post GET error:", error);
     return NextResponse.json({ error: "Failed to load post" }, { status: 500 });
@@ -27,6 +31,9 @@ export async function PATCH(
 ) {
   try {
     const id = parseInt(params.id);
+    if (isNaN(id)) {
+      return NextResponse.json({ error: "Invalid post ID" }, { status: 400 });
+    }
     const body = await request.json();
     const { content, status, tone } = body as {
       content?: string;
@@ -64,6 +71,9 @@ export async function DELETE(
 ) {
   try {
     const id = parseInt(params.id);
+    if (isNaN(id)) {
+      return NextResponse.json({ error: "Invalid post ID" }, { status: 400 });
+    }
 
     const existing = db.select().from(schema.posts).where(eq(schema.posts.id, id)).get();
     if (!existing) {

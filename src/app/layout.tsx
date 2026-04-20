@@ -5,6 +5,7 @@ import "./globals.css";
 import { Sidebar } from "@/components/sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
+import { migrateImagesToFiles } from "@/lib/migrateImages";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,6 +19,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  migrateImagesToFiles();
   const cookieStore = cookies();
   const theme = (cookieStore.get("theme")?.value || "dark") as "dark" | "light";
   return (

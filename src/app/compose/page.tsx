@@ -433,12 +433,27 @@ function ComposePageInner() {
     fetch(`/api/posts/${id}`)
       .then(async (res) => {
         if (!res.ok) throw new Error("Not found");
-        const data = await res.json() as { post: { id: number; content: string; tone: string | null; imageData: string | null; imageMimeType: string | null } };
+        const data = await res.json() as { post: { id: number; content: string; tone: string | null; hasImage?: boolean; imageMimeType?: string | null } };
         setEditId(data.post.id);
         setEditVariant({ content: data.post.content });
         setTone(data.post.tone || "Professional");
-        if (data.post.imageData && data.post.imageMimeType) {
-          setEditInitialImage({ data: data.post.imageData, mimeType: data.post.imageMimeType });
+        if (data.post.hasImage) {
+          // Fetch image binary and convert to base64 for VariantCard
+          try {
+            const imgRes = await fetch(`/api/images/${id}`);
+            if (imgRes.ok) {
+              const blob = await imgRes.blob();
+              const mimeType = blob.type || data.post.imageMimeType || "image/jpeg";
+              const arrayBuffer = await blob.arrayBuffer();
+              const uint8 = new Uint8Array(arrayBuffer);
+              let binary = "";
+              for (let i = 0; i < uint8.byteLength; i++) binary += String.fromCharCode(uint8[i]);
+              const base64 = btoa(binary);
+              setEditInitialImage({ data: base64, mimeType });
+            }
+          } catch {
+            // If image fetch fails, proceed without initial image
+          }
         }
       })
       .catch(() => {

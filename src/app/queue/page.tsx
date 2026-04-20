@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import {
   CheckCircle,
   Loader2,
-  ExternalLink,
   Edit2,
   Trash2,
   ThumbsUp,
@@ -42,20 +41,16 @@ import { cn } from "@/lib/utils";
 
 interface Post {
   id: number;
-  linkedinId: string | null;
   content: string;
   source: string;
   status: string;
   tone: string | null;
   publishedAt: string | null;
-  linkedinUrl: string | null;
-  likes: number;
-  comments: number;
-  shares: number;
   createdAt: string | null;
   updatedAt: string | null;
-  imageData: string | null;
-  imageMimeType: string | null;
+  hasImage?: boolean;
+  imagePath?: string | null;
+  imageMimeType?: string | null;
 }
 
 const MAX_CHARS = 1300;
@@ -83,7 +78,7 @@ interface PostCardProps {
   onStatusChange: (id: number, status: string) => Promise<void>;
   onContentChange: (id: number, content: string) => Promise<void>;
   onPublish: (post: Post) => void;
-  onImageChange: (id: number, imageData: string | null, imageMimeType: string | null) => void;
+  onImageChange: (id: number, hasImage: boolean) => void;
   onDelete: (id: number) => void;
   onResend: (post: Post) => void;
   hasUnsplashKey: boolean;
@@ -151,7 +146,7 @@ function PostCard({ post, onStatusChange, onContentChange, onPublish, onImageCha
           body: JSON.stringify({ image_data: base64, image_mime_type: file.type }),
         });
         if (!res.ok) throw new Error("Upload failed");
-        onImageChange(post.id, base64, file.type);
+        onImageChange(post.id, true);
         toast.success("Image attached");
       } catch {
         toast.error("Failed to attach image");
@@ -168,7 +163,7 @@ function PostCard({ post, onStatusChange, onContentChange, onPublish, onImageCha
     try {
       const res = await fetch(`/api/posts/${post.id}/image`, { method: "DELETE" });
       if (!res.ok) throw new Error("Remove failed");
-      onImageChange(post.id, null, null);
+      onImageChange(post.id, false);
       toast.success("Image removed");
     } catch {
       toast.error("Failed to remove image");
@@ -194,10 +189,10 @@ function PostCard({ post, onStatusChange, onContentChange, onPublish, onImageCha
         </div>
 
         {/* Image section */}
-        {post.imageData ? (
+        {post.hasImage ? (
           <div className="relative inline-block">
             <img
-              src={`data:${post.imageMimeType};base64,${post.imageData}`}
+              src={`/api/images/${post.id}`}
               alt="Post image"
               className="rounded-lg max-h-40 max-w-full object-cover border border-gray-200 dark:border-slate-700"
             />
@@ -256,7 +251,7 @@ function PostCard({ post, onStatusChange, onContentChange, onPublish, onImageCha
                 body: JSON.stringify({ image_data: imageData, image_mime_type: imageMimeType }),
               });
               if (!res.ok) throw new Error("Attach failed");
-              onImageChange(post.id, imageData, imageMimeType);
+              onImageChange(post.id, true);
               toast.success("Image attached");
             } catch {
               toast.error("Failed to attach image");
@@ -354,17 +349,6 @@ function PostCard({ post, onStatusChange, onContentChange, onPublish, onImageCha
         {post.status === "published" && (
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs text-gray-400 dark:text-slate-500">Published {formatDate(post.publishedAt)}</span>
-            {post.linkedinUrl && (
-              <a
-                href={post.linkedinUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300"
-              >
-                <ExternalLink className="h-3 w-3" />
-                View on LinkedIn
-              </a>
-            )}
             <Button
               size="sm"
               variant="outline"
@@ -513,9 +497,9 @@ export default function QueuePage() {
     }
   };
 
-  const handleImageChange = (id: number, imageData: string | null, imageMimeType: string | null) => {
+  const handleImageChange = (id: number, hasImage: boolean) => {
     setPosts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, imageData, imageMimeType } : p))
+      prev.map((p) => (p.id === id ? { ...p, hasImage } : p))
     );
   };
 

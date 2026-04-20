@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db, schema } from "@/lib/db";
 import { eq } from "drizzle-orm";
+import path from "path";
+import fs from "fs";
 
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 const MAX_DECODED_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -11,6 +13,15 @@ export async function POST(
 ) {
   try {
     const id = parseInt(params.id);
+    if (isNaN(id)) {
+      return NextResponse.json({ error: "Invalid post ID" }, { status: 400 });
+    }
+
+    const post = db.select().from(schema.posts).where(eq(schema.posts.id, id)).get();
+    if (!post) {
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    }
+
     const body = await request.json();
     const { image_data, image_mime_type } = body as {
       image_data: string;
@@ -39,18 +50,29 @@ export async function POST(
       );
     }
 
-    const existing = db.select().from(schema.posts).where(eq(schema.posts.id, id)).get();
-    if (!existing) {
-      return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    // Determine file extension from MIME type
+    const ext = image_mime_type.split("/")[1]?.replace("jpeg", "jpg") || "jpg";
+    const filename = `post-${id}-${Date.now()}.${ext}`;
+    const imagesDir = path.join(process.cwd(), "data", "images");
+    fs.mkdirSync(imagesDir, { recursive: true });
+    const filePath = path.join(imagesDir, filename);
+
+    // Remove old image file if exists
+    if (post.imagePath) {
+      const oldPath = path.join(process.cwd(), "data", "images", path.basename(post.imagePath));
+      if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
     }
 
+    // Write new image file
+    const buffer = Buffer.from(image_data, "base64");
+    fs.writeFileSync(filePath, buffer);
+
+    // Update DB: set imagePath, clear imageData
+    const relativePath = `data/images/${filename}`;
+    const now = new Date().toISOString();
     const updated = db
       .update(schema.posts)
-      .set({
-        imageData: image_data,
-        imageMimeType: image_mime_type,
-        updatedAt: new Date().toISOString(),
-      })
+      .set({ imagePath: relativePath, imageData: null, imageMimeType: image_mime_type, updatedAt: now })
       .where(eq(schema.posts.id, id))
       .returning()
       .get();
@@ -68,19 +90,25 @@ export async function DELETE(
 ) {
   try {
     const id = parseInt(params.id);
+    if (isNaN(id)) {
+      return NextResponse.json({ error: "Invalid post ID" }, { status: 400 });
+    }
 
-    const existing = db.select().from(schema.posts).where(eq(schema.posts.id, id)).get();
-    if (!existing) {
+    const post = db.select().from(schema.posts).where(eq(schema.posts.id, id)).get();
+    if (!post) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
+    // Remove file from disk
+    if (post.imagePath) {
+      const oldPath = path.join(process.cwd(), "data", "images", path.basename(post.imagePath));
+      if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+    }
+
+    const now = new Date().toISOString();
     const updated = db
       .update(schema.posts)
-      .set({
-        imageData: null,
-        imageMimeType: null,
-        updatedAt: new Date().toISOString(),
-      })
+      .set({ imagePath: null, imageData: null, imageMimeType: null, updatedAt: now })
       .where(eq(schema.posts.id, id))
       .returning()
       .get();

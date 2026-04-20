@@ -11,8 +11,8 @@ interface Post {
   status: string;
   tone: string | null;
   publishedAt: string | null;
-  imageData: string | null;
-  imageMimeType: string | null;
+  hasImage?: boolean;
+  imagePath?: string | null;
 }
 
 interface MonthGroup {
@@ -151,9 +151,9 @@ export default function TimelinePage() {
                     {/* Post card */}
                     <div className="flex-1 rounded-xl border border-gray-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 p-3 space-y-2 hover:border-gray-300 dark:hover:border-slate-700 transition-colors">
                       {/* Image thumbnail */}
-                      {post.imageData && (
+                      {post.hasImage && (
                         <img
-                          src={`data:${post.imageMimeType};base64,${post.imageData}`}
+                          src={`/api/images/${post.id}`}
                           alt="Post image"
                           className="w-full max-h-32 object-cover rounded-lg border border-gray-200 dark:border-slate-700"
                         />
