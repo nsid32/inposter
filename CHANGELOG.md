@@ -2,6 +2,17 @@
 
 All notable changes to InPoster are documented here.
 
+## [0.4.5] - 2026-04-19
+
+### Bug Fixes
+- use approximate length labels in settings dropdown (~300 not ≤300) (a7ac9e7)
+- show approximate length labels in compose dropdown (~300 not ≤300) (3a48638)
+- enforce strict character limit on generated posts (3e0a416)
+
+### Other Changes
+- Revert "fix: enforce strict character limit on generated posts" (1e3d03e)
+
+
 ## [0.4.4] - 2026-04-19
 
 ### Other Changes
