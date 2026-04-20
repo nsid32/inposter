@@ -2,6 +2,17 @@
 
 All notable changes to InPoster are documented here.
 
+## [0.4.2] - 2026-04-19
+
+### Bug Fixes
+- auto re-encrypt existing settings when generating a new ENCRYPTION_KEY (658e8f4)
+- setup.sh must not regenerate ENCRYPTION_KEY if already set (1e55e4e)
+
+### Other Changes
+- chore: update package-lock.json (ac7dec0)
+- refactor: address 10 tech debt items — performance, security, image storage (6e10ed5)
+
+
 ## [0.4.1] - 2026-04-19
 
 ### Other Changes
