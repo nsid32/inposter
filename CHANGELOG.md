@@ -2,6 +2,12 @@
 
 All notable changes to InPoster are documented here.
 
+## [0.4.6] - 2026-04-19
+
+### Other Changes
+- docs: add detailed Make.com setup guide with screenshots (c691d93)
+
+
 ## [0.4.5] - 2026-04-19
 
 ### Bug Fixes
