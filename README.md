@@ -96,13 +96,60 @@ All API keys are stored AES-256-GCM encrypted in the local SQLite database.
 
 ### Make.com Setup
 
-InPoster publishes posts by sending a webhook payload to Make.com. Make.com then posts to LinkedIn on your behalf.
+InPoster publishes posts by sending a webhook payload to Make.com. Make.com then posts to LinkedIn on your behalf. The scenario handles both text-only posts and posts with images.
 
-1. Create a Make.com account
-2. Create a new scenario with a **Webhook** trigger
-3. Add a **LinkedIn → Create a Post** action
-4. Map the webhook fields (`content`, `image_data`, etc.) to the LinkedIn action
-5. Copy the webhook URL and paste it into InPoster Settings → Make.com
+#### Step 1 — Create the scenario
+
+Create a new Make.com scenario with three modules: **Webhooks → If-else → LinkedIn**.
+
+![Make.com scenario overview](docs/screenshots/make-scenario.png)
+
+#### Step 2 — Configure the Webhook trigger
+
+Add a **Webhooks → Custom webhook** module. Click **Add**, give it a name, and copy the webhook URL — you'll paste this into InPoster Settings.
+
+![Webhook configuration](docs/screenshots/make-webhook.png)
+
+After saving, click **Run once** in Make.com, then publish a post from InPoster. Make.com will capture the data structure automatically.
+
+#### Step 3 — Add an If-else router
+
+Add a **Flow control → If-else** module after the webhook. Set the condition:
+
+- **Label:** `Image is posted`
+- **Condition:** `1. image_data` → **Basic operators: Exists**
+
+![If-else condition](docs/screenshots/make-ifelse.png)
+
+This routes posts with an image to the image branch, and text-only posts to the else branch.
+
+#### Step 4 — Image branch: Create a User Image Post
+
+On the **1st (Image is posted)** branch, add **LinkedIn → Create a User Image Post** and configure it:
+
+- **Connection:** your LinkedIn connection
+- **Choose Upload Method:** `Upload by file`
+- **File name:** `attachment.` + `1. image_extension`
+- **Data:** `toBinary( 1. image_data ; base64 )`
+- **Content:** `1. content`
+- **Visibility:** `Anyone`
+
+![Image post — file mapping](docs/screenshots/make-image-post-file.png)
+![Image post — content mapping](docs/screenshots/make-image-post-content.png)
+
+#### Step 5 — Else branch: Create a User Text Post
+
+On the **Else** branch, add **LinkedIn → Create a User Text Post** and configure it:
+
+- **Connection:** your LinkedIn connection
+- **Content:** `1. content`
+- **Visibility:** `Anyone`
+
+![Text post mapping](docs/screenshots/make-text-post.png)
+
+#### Step 6 — Paste the webhook URL into InPoster
+
+Go to InPoster **Settings → Make.com** and paste the webhook URL copied in Step 2. Enable **Immediately as data arrives** in Make.com so the scenario runs the moment InPoster triggers it.
 
 ---
 
