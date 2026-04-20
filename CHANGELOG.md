@@ -2,6 +2,12 @@
 
 All notable changes to InPoster are documented here.
 
+## [0.4.3] - 2026-04-19
+
+### Bug Fixes
+- update stale Sonnet 4.5 references in Settings to 4.6 (455fbb5)
+
+
 ## [0.4.2] - 2026-04-19
 
 ### Bug Fixes
