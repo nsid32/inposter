@@ -516,7 +516,7 @@ export default function SettingsPage() {
               >
                 console.anthropic.com/settings/keys
               </a>
-              {" "}→ Create Key. We recommend starting with Claude Sonnet 4.5 for the best quality/speed balance.
+              {" "}→ Create Key. We recommend starting with Claude Sonnet 4.6 for the best quality/speed balance.
             </p>
           </div>
 
@@ -539,7 +539,7 @@ export default function SettingsPage() {
               </SelectContent>
             </Select>
             <p className="text-xs text-gray-500 dark:text-slate-500">
-              Sonnet 4.5 produces higher-quality posts. Haiku 4.5 is faster and cheaper.
+              Sonnet 4.6 produces higher-quality posts. Haiku 4.5 is faster and cheaper.
             </p>
           </div>
 
