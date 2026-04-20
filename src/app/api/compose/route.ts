@@ -45,7 +45,7 @@ Rules:
 - Include a hook in the first line to stop the scroll
 - End with a clear call-to-action or thought-provoking question
 - Use hashtags naturally integrated in the post (not in a block at the end)
-- Respect the character limit of approximately ${maxChars} characters
+- STRICT character limit: each post MUST be ${maxChars} characters or fewer. Count carefully before responding.
 - Match the requested tone exactly
 - Return ONLY valid JSON with no markdown wrapping or code blocks`;
 
@@ -55,7 +55,7 @@ Rules:
       audience ? `Target audience: ${audience}` : null,
       cta ? `Call to action: ${cta}` : null,
       `Tone: ${tone}`,
-      `Maximum length: ~${maxChars} characters`,
+      `STRICT maximum length: ${maxChars} characters (hard limit — do not exceed)`,
       `Number of hashtags to include: ${hashtags}`,
       `Use emojis: ${emojis ? "Yes, use a few relevant emojis" : "No emojis"}`,
     ]
@@ -93,7 +93,16 @@ Generate 2 different LinkedIn post variants based on the above. Return JSON only
       return NextResponse.json({ error: "Invalid AI response format" }, { status: 500 });
     }
 
-    return NextResponse.json({ variants: parsed.variants });
+    // Hard truncation at word boundary if Claude exceeds the limit
+    const limit = parseInt(maxChars);
+    const variants = parsed.variants.map((v: { content: string }) => {
+      if (v.content.length <= limit) return v;
+      const truncated = v.content.slice(0, limit);
+      const lastSpace = truncated.lastIndexOf(" ");
+      return { content: lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated };
+    });
+
+    return NextResponse.json({ variants });
   } catch (error) {
     console.error("Compose error:", error);
     const msg = error instanceof Error ? error.message : "Compose failed";
