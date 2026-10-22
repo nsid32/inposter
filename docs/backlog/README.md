@@ -53,12 +53,11 @@ never write new work there.
 
 ## Epics and numbering
 
-No epics exist yet. Epic `NN` owns tickets `NN00` to `NN99`; epic `00` starts at `0001`. Add a
-row here when an epic is created.
+The first epic, Phase 1, is 00: Onboarding & Setup Confidence.
 
 | Epic | Directory | Tickets | Next free number |
 |---|---|---|---|
-| (none yet) | | | 0001 for epic 00 |
+| 00 | 00-onboarding | 0001–0005 (2 written, 3 planned) | 0006 for epic 00, 0100 for epic 01 |
 
 ## Tickets
 
