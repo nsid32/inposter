@@ -1,101 +1,91 @@
-# What users can do today
+# What InPoster does today
 
-*As of 2026-10-21.* What is built, in users' words: what someone can do, area by area. The map of
-the code is on the technical side. Read from the product as released in version 0.4.6 (see the
-[change history](https://github.com/nsid32/inposter/blob/main/CHANGELOG.md)) and the earlier
-feature notes, all 34 of which are finished.
+*As of 2026-10-21,* read from the code by the "Read what is built" job.
 
-## Summary
+## Dashboard
 
-One person, on their own computer, can ask Claude for two versions of a LinkedIn post on any
-topic, get topic ideas when stuck, edit the version they like, add a picture (uploaded, made by AI,
-or from Unsplash), save it as a draft, approve it, and publish it to LinkedIn through their own
-Make.com scenario. They can look back at what they published on a timeline and see simple totals
-on the Dashboard. Everything is set up on one Settings page, in a dark or light appearance.
+The home page shows totals and recent activity: how many posts exist (all time), how many drafts
+are waiting to be reviewed, how many were published this week, and the 10 most recent drafts with
+their dates and tone. Links lead directly to Compose (to write a new post) and Queue (to review
+pending drafts).
 
-## By area
+## Compose
 
-### Getting started
+Where a user describes a topic and gets two ready-to-publish versions from Claude.
 
-- Install and start InPoster with two commands from its
-  [public project page](https://github.com/nsid32/inposter); it opens in the browser on the
-  user's own computer.
-- Follow a step-by-step guide, with screenshots, to build the Make.com scenario that posts text
-  posts and picture posts to LinkedIn.
-- Use the app without any keys; Compose shows a notice with a link to Settings until an Anthropic
-  key is added.
+The page shows:
+- Topic (required): what the user wants to post about
+- Key points, target audience, call to action (optional): details that guide the AI
+- Tone: Professional, Conversational, Inspirational or Provocative
+- Length: ~300 characters (short), ~600 (medium), ~1,300 (long); a guide, not a limit
+- Hashtags: 0 to 10; included in the generated post
+- Emojis: on or off
 
-### Settings
+Two variant cards appear with the AI's drafts. The user can:
+- Edit the text
+- See and edit the character count (with a warning above 1,300)
+- Add, generate or search for a picture:
+  - Upload from their computer (JPEG, PNG, GIF, WebP; up to 5 MB)
+  - Generate with DALL-E 3 using OpenAI (requires OpenAI key in Settings)
+  - Search Unsplash for a free stock photo (requires Unsplash key)
+- Save the variant as a draft to the Queue
 
-- Paste the Make.com address, and an optional Make.com access key, then test it with the button
-  beside **Save**: InPoster sends a sample post and says whether Make.com received it.
-- Add an Anthropic access key, choose the model (Sonnet 4.6, recommended, or Haiku 4.5, faster and
-  cheaper), and **Test Connection**.
-- Add an OpenAI access key to turn on picture generation, and an Unsplash access key to turn on
-  photo search. Buttons that need a missing key are greyed out with a hint.
-- Keys are shown only as dots once saved, with an eye button to show what is being typed.
-- Add up to ten areas of interest for Inspire Me.
-- Set preferences: default tone, length, number of hashtags and emojis on or off.
-- Choose a dark or light appearance (also from a button at the bottom of the side menu). The
-  choice is remembered.
-- Open a short Quick Setup Guide.
+A button labeled "Inspire Me" asks Claude for five fresh post ideas based on the user's areas of
+interest, plus one or two follow-ups if they have published before. Ideas can be used as topics.
 
-### Writing a post (Compose)
+The user's default tone, length, hashtag count and emoji choice (from Settings) fill the form on
+first visit.
 
-- Type a topic, and optionally key points, a target audience and a call to action.
-- Choose tone, length, number of hashtags (0 to 10) and emojis; these start from the preferences.
-- **Generate** (or press Cmd/Ctrl + Enter) to get two variants; **Regenerate** for two new ones.
-- **Inspire Me**: get five fresh ideas based on the areas of interest, and, once the user has
-  published, one or two follow-ups that continue a recent post. Picking one fills in the topic.
-- Edit each variant in place, with a character counter that turns red above 1,300.
-- Add one picture to a variant: upload one, generate one with DALL-E 3 (write an image prompt or
-  click **Suggest** for one written from the post; preview, then use, regenerate or discard), or
-  search Unsplash. Remove it with the cross.
-- **Save as Draft** to send the variant, with its picture, to the Queue.
+## Queue
 
-### Reviewing and publishing (Queue)
+A three-column view: Drafts (left), Approved (middle), Published (right). Posts move right as
+they are approved and published.
 
-- See posts in three columns: Drafts, Approved and Published, each with a count.
-- Each card shows the start of the text, the date, the tone, the character count and the picture.
-- On a draft: **Edit** (opens it in Compose, picture included), **Approve**, **Discard** (hides it
-  for good) or **Delete** (after confirming).
-- On an approved post: **Edit** in a pop-up with a character counter, **Unapprove** (back to
-  drafts), **Publish Now** (after a confirmation that shows the text) or **Delete**.
-- Add a picture to a draft or approved post that has none, by upload or from Unsplash, or remove
-  it.
-- When publishing fails, the post stays approved and a message says why; when Make.com is not set
-  up, the message says to add it in Settings.
-- On a published post: see when it was published, **Resend** it to Make.com, or **Delete** it from
-  InPoster.
-- Choose how many days back the Published column shows (30 by default).
+Each post card shows the text, creation date and tone. The user can:
+- Edit the text and save
+- Add, change or remove a picture
+- Move the post to Approved (from Draft) or Discarded
+- Send the post to LinkedIn through Make.com (from Approved), with a final confirmation
+- Edit a Published post (text only; moving it back to Approved)
+- Delete a post (permanent; a separate, strong confirmation)
+- Resend a Published post if the first send failed
 
-### Looking back (Timeline and Dashboard)
+## Timeline
 
-- Timeline: every published post, newest first, grouped by month, with its picture, date and time,
-  and tone. Long posts show the first 100 characters with **Read more**.
-- Dashboard: total posts, drafts pending, posts published in the last seven days, and the five
-  most recent drafts, with shortcuts to Compose and the Queue.
+A reverse-chronological history of published posts, grouped by month. Each post shows its text,
+publication date and tone. Users can edit the text and delete if they change their mind, but
+posts already sent to LinkedIn stay there (InPoster cannot remove them).
 
-### Privacy
+## Settings
 
-- Posts, pictures and settings are kept on the user's computer. Access keys are stored scrambled.
-- InPoster sends nothing on its own; it contacts Anthropic, OpenAI, Unsplash and the user's
-  Make.com scenario only when the user does something that needs them.
+Where the user configures everything without editing files.
 
-## Not built yet
+**AI and images:**
+- Anthropic key: required to generate posts; a "Test Connection" button verifies it works
+- Claude model: Sonnet 4.6 (recommended) or Haiku 4.5 (faster, cheaper)
+- OpenAI key: optional; enables image generation with DALL-E
+- Unsplash key: optional; enables Unsplash search
 
-*(Gaps seen in the product today, or left out of earlier features. Not a plan: the owner and
-product members decide what to build.)*
+**Preferences:**
+- Default tone, length, hashtag count and emoji choice (these fill Compose on first visit)
+- Areas of interest (up to ten topics): used by "Inspire Me" to suggest relevant ideas
 
-- Scheduling a post for later; publishing is now only.
-- Seeing whether a post really appeared on LinkedIn, or a link to it there. "Published" means
-  Make.com accepted it.
-- Bringing back a discarded draft, or seeing discarded drafts at all. The Dashboard's total still
-  counts them.
-- Generating a picture with AI from the Queue (only upload and Unsplash are offered there), or
-  replacing a picture without removing it first.
-- Editing a published post, or removing it from LinkedIn when it is deleted in InPoster.
-- Keeping the Unsplash photographer's name with the post once a photo is attached.
-- Searching or filtering drafts, more than one picture per post, or more than two variants.
-- How posts performed on LinkedIn (views, likes, comments).
-- More than one LinkedIn profile, or any network other than LinkedIn.
+**Publishing:**
+- Make.com webhook address: where InPoster sends approved posts for LinkedIn
+- Make.com API key: optional; used if Make.com's scenario needs it for authentication
+- A "Test Webhook" button verifies the address is reachable
+
+**Appearance:**
+- Dark (default) or Light theme
+
+All keys are stored encrypted on the user's computer and shown only as dots. The browser never
+receives a stored key.
+
+## What is not in the UI
+
+InPoster does not:
+- Sync existing posts from LinkedIn or show engagement (likes, comments, impressions)
+- Schedule posting for a future date
+- Connect to Twitter, Instagram or other social networks
+- Support multiple LinkedIn profiles or teams
+- Offer a mobile app or web version to access from other devices

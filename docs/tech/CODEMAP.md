@@ -1,96 +1,245 @@
-# The map of the code
+# Map of the code
 
-*Read from the code on 2026-10-21 (version 0.4.6, commit 768379d).* Technical side: what is built,
-where it lives, and what it is called. What users can do is in `docs/product/STATE.md`. Stack and
-other locked choices are in `docs/backlog/DECISIONS.md`.
+*As of 2026-10-21,* read from the codebase by the "Read what is built" job. What the
+technical backlog has not ticketed is listed below as gaps. The product has shipped (v0.4.6,
+April 2026) and works end-to-end, but its earlier features (F0001–F0037 in `backlog/`) are
+not ticketed in the new Backlog Standard format.
 
-Single Next.js App Router app under `src/`. Pages are client components (`"use client"`) that call
-route handlers under `src/app/api/` with `fetch`; there are no server actions. Route handlers read
-and write SQLite synchronously through Drizzle (`src/lib/db`).
+## Layout
 
-## By area
+```
+src/
+  app/
+    api/
+      compose/route.ts         generate 2 post variants from topic + tone + length + hashtags
+      dashboard/route.ts       aggregates: total posts, drafts, published this week, recent drafts
+      ideas/route.ts           generate 5 fresh post ideas + 1–2 follow-ups from areas of interest
+      images/
+        [postId]/route.ts      serve a post's picture file with cache headers
+        generate/route.ts      generate an image with DALL-E from a prompt or from post text
+        unsplash/search/       search Unsplash and attach a stock photo
+        unsplash/select/       record user's chosen stock photo
+      posts/
+        route.ts               GET: list posts (optionally filtered by status)
+        [id]/route.ts          GET: single post; PUT: update text/status; DELETE: hard delete
+        [id]/image/route.ts    POST: upload image; DELETE: remove image
+        [id]/publish/route.ts  POST: send to Make.com webhook, mark published or stay approved
+      settings/
+        route.ts               GET: all settings (sensitive keys masked); PUT: save settings
+        test-ai/route.ts       POST: test Anthropic connection
+        test-webhook/route.ts  POST: test Make.com webhook URL
+    compose/page.tsx           UI: describe topic, get 2 variants, add picture, save as draft
+    queue/page.tsx             UI: three-column board (Drafts, Approved, Published)
+    settings/page.tsx          UI: configure keys, preferences, webhook, appearance
+    timeline/page.tsx          UI: published posts by month, edit or delete
+    page.tsx                   UI: home (Dashboard)
+    layout.tsx                 Root layout: sidebar, theme, migrations on mount
+  components/
+    sidebar.tsx                Navigation, version, theme toggle
+    ideas-modal.tsx            "Inspire Me" dialog: show ideas, pick as topic
+    unsplash-search-modal.tsx  Modal: search Unsplash, preview, attach photo
+    theme-provider.tsx         Dark/light theme context and cookie persistence
+    logo.tsx                   Sidebar logo
+    ui/                        shadcn/ui: button, input, select, textarea, dialog, etc.
+  lib/
+    db/
+      index.ts                 SQLite setup: WAL mode, Drizzle, migrations on first load
+      schema.ts                Drizzle schema: posts, settings tables
+      migrate.ts               Apply pending migrations
+    settings.ts                get/setSetting (encrypt sensitive keys); getAllSettings
+    crypto.ts                  AES-256-GCM encrypt/decrypt; key derived from .env.local ENCRYPTION_KEY
+    utils.ts                   Utility functions (Tailwind classnames)
+    migrateImages.ts           On-startup: move legacy base64 images from imageData column to files
+  globals.css                  Tailwind CSS
+drizzle/
+  0000_confused_penance.sql    Initial schema (posts, settings tables)
+  0001_add_image_columns.sql   Add imagePath, imageMimeType columns (legacy imageData column)
+  0002_add_indexes_and_cleanup.sql  Add indexes on status, published_at, created_at
+  0003_add_image_path.sql      Alter posts to add image_path column
+  meta/_journal.json           Migration history (⚠ missing 0002, 0003; see Gaps)
+scripts/
+  setup.sh                     One-time setup: initialize .env.local, ENCRYPTION_KEY, database
+  run.sh                       Start dev server; apply pending migrations
+  release.sh                   Bump semver, update CHANGELOG, commit, tag, push (owner only)
+next.config.mjs                Make better-sqlite3 a webpack external; NEXT_PUBLIC_APP_VERSION
+package.json                   Dependencies, scripts, version (read by sidebar)
+.env.local (generated)         ENCRYPTION_KEY for encrypting sensitive settings
+data/
+  inposter.db                  SQLite database (gitignored)
+  images/                      Post pictures: post-<id>-<timestamp>.<ext> (gitignored)
+docs/
+  product/                     Product side: what users see and why
+  backlog/                     Technical side: tickets, epics, decisions, NFR
+  tech/                        This file
+backlog/                       History: features F0001–F0037 (older Backlog Standard v1)
+```
 
-| Area | Main files and routes | Notes |
+## Pages and routes
+
+| Route | Method | What it does | Notes |
+|---|---|---|---|
+| `/` | `GET` | Dashboard: totals, drafts pending, published this week, recent drafts | Client component; fetches `/api/dashboard` |
+| `/compose` | `GET` | Compose page: topic, preferences, 2 AI variants, pictures | Client; fetches `/api/compose`, `/api/ideas`, `/api/images/**` |
+| `/queue` | `GET` | Three-column board (Drafts, Approved, Published) | Client; fetches `/api/posts`, manages statuses |
+| `/timeline` | `GET` | Published posts grouped by month | Client; fetches `/api/posts?status=published` |
+| `/settings` | `GET` | Configuration: keys, preferences, Make.com, theme | Client; fetches/updates `/api/settings` |
+| `/api/compose` | `POST` | Generate 2 post variants (Claude, JSON parse, avoid clichés) | Input: topic, tone, length, hashtags, emojis, key points, audience, CTA. Output: `{ variants: [{ content: string }] }` |
+| `/api/dashboard` | `GET` | Aggregates: total, drafts, this week, 10 recent drafts | Output: `{ total, drafts, publishedThisWeek, recentDrafts }` |
+| `/api/ideas` | `POST` | 5 fresh ideas + 1–2 follow-ups from areas of interest and recent posts | Output: `{ ideas: [{title, description}], followUps: [{title, description, basedOn}] }` |
+| `/api/posts` | `GET` | List posts; query: `status`, `limit` (max 500), `offset` | Output: `{ posts: [...] }` with `imageData` omitted, `hasImage` added |
+| `/api/posts` | `POST` | Create a draft post | Input: `{ content, tone?, imageData?, imageMimeType? }` |
+| `/api/posts/[id]` | `GET` | Fetch single post (for editing) | Output: full post with image data |
+| `/api/posts/[id]` | `PUT` | Update text and status | Input: `{ content?, status? }` (validate status) |
+| `/api/posts/[id]` | `DELETE` | Hard delete (permanent) | Removes post and image file |
+| `/api/posts/[id]/image` | `POST` | Upload image (server validates: JPEG/PNG/GIF/WebP, ≤5 MB decoded) | Input: form `file` or JSON `{ image_data, image_mime_type }` |
+| `/api/posts/[id]/image` | `DELETE` | Remove post's image | Deletes file from `data/images/` |
+| `/api/posts/[id]/publish` | `POST` | Send to Make.com; mark `published` if 2xx, else stay `approved` with error | Payload: post_id, content, tone, published_at, image_data (base64), image_mime_type, image_extension |
+| `/api/images/[postId]` | `GET` | Serve post picture file | Cache-Control: private, max-age=3600 |
+| `/api/images/generate` | `POST` | Generate image with DALL-E; optionally suggest prompt from post text | Input: `{ content, custom_prompt?, derive_only? }`. Output: `{ image_data, image_mime_type, prompt_used }` |
+| `/api/images/unsplash/search` | `POST` | Search Unsplash by query | Input: `{ query }`. Output: `{ results: [{id, urls, user}] }` |
+| `/api/images/unsplash/select` | `POST` | Record user's chosen Unsplash photo | Input: `{ post_id, unsplash_id, image_data, image_mime_type }` |
+| `/api/settings` | `GET` | All settings; sensitive keys masked as "••••••••••••" | Output: `{ settings: {...} }` |
+| `/api/settings` | `PUT` | Save settings; skip masked values (user didn't change them) | Input: `{ settings: {...} }` |
+| `/api/settings/test-ai` | `POST` | Verify Anthropic key works with a test call | Output: `{ ok: boolean, message: string }` |
+| `/api/settings/test-webhook` | `POST` | Verify Make.com webhook URL is reachable | Output: `{ ok: boolean, message: string }` |
+
+## Database
+
+**Posts table** (`src/lib/db/schema.ts`, `drizzle/0000_confused_penance.sql`):
+
+| Column | Type | Notes |
 |---|---|---|
-| App shell and navigation | `src/app/layout.tsx`, `src/components/sidebar.tsx`, `src/components/logo.tsx`, `src/app/globals.css`, `tailwind.config.ts` | Root layout reads the `theme` cookie (default `dark`) with `cookies()`, wraps pages in `ThemeProvider` and the sonner `Toaster`, and calls `migrateImagesToFiles()` on every render. Sidebar nav: `/`, `/compose`, `/queue`, `/timeline`, `/settings`; shows `NEXT_PUBLIC_APP_VERSION` (set from `package.json` in `next.config.mjs`) |
-| Theme | `src/components/theme-provider.tsx`, Appearance card in `src/app/settings/page.tsx` | `setTheme` toggles the `dark` class, writes the `theme` cookie (1 year) and `PUT /api/settings {theme}` |
-| Dashboard | `src/app/page.tsx`; `GET /api/dashboard` (`src/app/api/dashboard/route.ts`) | Counts: all posts (discarded included), drafts, published in last 7 days by `published_at`; five newest drafts (`imageData` stripped) |
-| Compose (generate and edit) | `src/app/compose/page.tsx` (`ComposePageInner`, `VariantCard`, `CharCounter`); `POST /api/compose` | Body `ComposeRequest {topic, keyPoints?, audience?, cta?, tone, length, hashtags, emojis}`; `LENGTH_CHARS` short 300, medium 600, long 1300. Calls Anthropic `messages.create` (model from `claude_model`, default `claude-sonnet-4-6`, `max_tokens` 2000) and parses `{"variants":[{"content"}]}` from the text after stripping code fences. Edit mode: `/compose?edit=<id>` loads `GET /api/posts/:id` and the image, saves with `PATCH` then image `POST` or `DELETE`. `MAX_CHARS = 1300` is display only |
-| Topic ideas (Inspire Me) | `src/components/ideas-modal.tsx` (`IdeasModal`); `POST /api/ideas` | Uses `areas_of_interest` (comma-separated setting) and the first 200 chars of the last 5 published posts (by insertion order, `.slice(-5)`), `max_tokens` 1500; returns `{ideas[5], followUps[0..2]}` |
-| Posts | `GET`/`POST /api/posts` (`src/app/api/posts/route.ts`); `GET`/`PATCH`/`DELETE /api/posts/:id` (`src/app/api/posts/[id]/route.ts`) | List filters by `status`, `limit` default 200 max 500, `offset`; no `ORDER BY`. List and single responses drop `imageData` and add `hasImage`. `POST` requires `application/json` (415 otherwise). `PATCH` accepts `content`, `status`, `tone` with no transition checks |
-| Queue (approval and publishing) | `src/app/queue/page.tsx` (`QueuePage`, `PostCard`, `COLUMNS`) | Loads all posts and settings, filters `source === "ai_generated"`; columns draft, approved, published (published filtered client-side by `publishedDays`, default 30). Discarded posts are never shown. AlertDialogs for publish, delete, resend |
-| Publishing | `POST /api/posts/:id/publish` (`src/app/api/posts/[id]/publish/route.ts`), `POST /api/settings/test-webhook` | Posts JSON to `make_webhook_url` with optional `x-make-apikey` header. Payload: `post_id`, `content`, `tone`, `published_at`, and when there is an image `image_data` (base64), `image_mime_type`, `image_extension`. Sets `status = published`, `published_at` only on a 2xx; 400 `code: webhook_not_configured`, 502 on non-2xx, 500 on network error. No timeout. Resend reuses the same route. Test payload adds `_test: true`, `post_id: 0` |
-| Images: storage and serving | `POST`/`DELETE /api/posts/:id/image` (`src/app/api/posts/[id]/image/route.ts`), `GET /api/images/:postId` (`src/app/api/images/[postId]/route.ts`), `src/lib/migrateImages.ts` | Upload body `{image_data (base64), image_mime_type}`; allowed `image/jpeg`, `image/png`, `image/gif`, `image/webp`; 5 MB decoded. Written to `data/images/post-<id>-<timestamp>.<ext>`, path stored relative in `posts.image_path`, old file unlinked. Legacy `posts.image_data` still read as a fallback; `migrateImagesToFiles()` moves it to files |
-| Images: AI generation | `POST /api/images/generate` (`src/app/api/images/generate/route.ts`); generation panel in `VariantCard` | Body `{content, custom_prompt?, derive_only?}`. Without `custom_prompt`, Claude writes the prompt with model hard-coded to `claude-sonnet-4-6` (ignores `claude_model`). Then OpenAI `images.generate` `dall-e-3`, 1024x1024, `response_format: "url"`; fetches the URL and returns base64 `image/png`. Offered in Compose only |
-| Images: Unsplash | `src/components/unsplash-search-modal.tsx` (`UnsplashSearchModal`); `POST /api/images/unsplash/search`, `POST /api/images/unsplash/select` | Search: `per_page` 20, `orientation=landscape`, page 1 only from the UI. Select: fires the `download_location` request (fire and forget), fetches `urls.regular`, returns base64. Photographer name is shown in the modal, not stored |
-| Settings | `src/app/settings/page.tsx` (`SettingsPage`); `GET`/`PUT /api/settings`, `POST /api/settings/test-ai`; `src/lib/settings.ts` (`getSetting`, `setSetting`, `getAllSettings`, `deleteSetting`) | `GET` masks `SENSITIVE_KEYS` as `MASK` (`••••••••••••`); `PUT {settings: Record<string,string>}` skips masked values and accepts any key. `SENSITIVE_KEYS` is duplicated in `src/lib/settings.ts` and `src/app/api/settings/route.ts` |
-| Secrets encryption | `src/lib/crypto.ts` (`encrypt`, `decrypt`) | AES-256-GCM, key `scryptSync(ENCRYPTION_KEY or os.hostname(), "inposter-local-encryption", 32)`; stored as `iv:tag:data` hex. Warns when `ENCRYPTION_KEY` is unset |
-| Data store | `src/lib/db/index.ts` (`db`, `schema`), `src/lib/db/schema.ts`, `drizzle/*.sql`, `drizzle/meta/_journal.json`, `drizzle.config.ts`, `src/lib/db/migrate.ts` | `data/inposter.db`, WAL. Tables `settings(key PK, value, encrypted, updated_at)` and `posts(id, content, source, status, tone, published_at, image_path, image_data, image_mime_type, created_at, updated_at)`. Timestamps are ISO strings in `text` columns |
-| Setup, run and release | `scripts/setup.sh`, `scripts/run.sh`, `scripts/release.sh`, `.env.example` | `setup.sh`: Node 18+ check, `npm install`, `.env.local` from `.env.example`, generates `ENCRYPTION_KEY` once and re-encrypts settings stored under the hostname key, `npm run db:migrate`. `run.sh`: `db:migrate` then `npm run dev` (the app always runs on the dev server). `release.sh [--dry-run]`: Conventional Commits to semver bump, CHANGELOG, tag, push |
-| UI kit | `src/components/ui/*` (shadcn/ui: button, card, input, label, select, textarea, tabs, badge, separator, dropdown-menu, sheet, scroll-area, dialog, switch, alert-dialog), `src/lib/utils.ts` (`cn`), `components.json` | Radix primitives, lucide-react icons, sonner toasts |
-| Developer tooling | `.eslintrc.json`, `tsconfig.json` (`strict`, alias `@/*` to `src/*`), `CONTRIBUTING.md`, `CLAUDE.md` (gitignored), `.claude/` (gitignored) | No test runner, no tests, no CI |
+| `id` | int | Primary key, auto-increment |
+| `content` | text | Post text |
+| `source` | enum | `"ai_generated"` (only source today) |
+| `status` | enum | `"draft"`, `"approved"`, `"published"`, `"discarded"` |
+| `tone` | text | User's chosen tone from Compose |
+| `publishedAt` | text (ISO 8601) | Set when Make.com answers 2xx |
+| `imagePath` | text | Relative path to file in `data/images/` (D-04) |
+| `imageMimeType` | text | `"image/jpeg"`, `"image/png"`, etc. |
+| `imageData` | text | Legacy base64; read-only fallback; migrated to `imagePath` on startup (D-04) |
+| `createdAt`, `updatedAt` | text (ISO 8601) | Managed by SQLite defaults |
 
-## Names in code
+**Settings table** (`src/lib/db/schema.ts`):
 
-| Term | In code |
-|---|---|
-| Post | `posts` table, `schema.posts`; `Post` interface in pages |
-| Status: Draft, Approved, Published, Discarded | `posts.status` enum `"draft" \| "approved" \| "published" \| "discarded"`; `VALID_STATUSES` in `src/app/api/posts/route.ts` |
-| Source | `posts.source`, enum `["ai_generated"]` only (the `synced` source was removed with LinkedIn sync) |
-| Variant | `Variant { content }`, `VariantCard` in `src/app/compose/page.tsx` |
-| Tone | `posts.tone`; values `Professional`, `Conversational`, `Inspirational`, `Provocative`; setting `default_tone` |
-| Length | `length` `short` \| `medium` \| `long`, `LENGTH_CHARS`; setting `default_length` |
-| Hashtags, emojis | `hashtags`, `emojis` in `ComposeRequest`; settings `default_hashtags`, `emoji_usage` (`"true"`/`"false"`) |
-| Inspire Me, fresh idea, follow-up | `IdeasModal`, `POST /api/ideas`, `Idea`, `FollowUp { basedOn }` |
-| Areas of interest | setting `areas_of_interest` (comma-separated, max 10 enforced in the UI only) |
-| Picture | `posts.image_path`, `posts.image_mime_type`, legacy `posts.image_data`; API fields `image_data`, `image_mime_type`; `hasImage` |
-| Image prompt, Suggest | `custom_prompt`, `derive_only`, `prompt_used` in `/api/images/generate` |
-| Queue | `/queue`, `QueuePage`, `COLUMNS`, `PostCard` |
-| Publish Now, Resend | `POST /api/posts/:id/publish`; `confirmPublish`, `confirmResend` |
-| Make.com address, Make.com access key | settings `make_webhook_url`, `make_webhook_api_key` (header `x-make-apikey`) |
-| Access keys | settings `anthropic_api_key`, `openai_api_key`, `unsplash_access_key`, `make_webhook_api_key` = `SENSITIVE_KEYS` |
-| Model | setting `claude_model`: `claude-sonnet-4-6` (default), `claude-haiku-4-5-20251001` |
-| Theme | cookie and setting `theme` (`dark` \| `light`); `useTheme`, `ThemeProvider` |
-| Published column range | `publishedDays` state in `QueuePage` (not saved) |
+| Column | Type | Notes |
+|---|---|---|
+| `key` | text | Primary key |
+| `value` | text | Plain text or encrypted (see below) |
+| `encrypted` | boolean | If true, value is AES-256-GCM encrypted (D-05) |
+| `updatedAt` | text (ISO 8601) | |
 
-## Gaps between the code and the backlog
+**Sensitive keys** (always encrypted): `anthropic_api_key`, `make_webhook_api_key`, `openai_api_key`, `unsplash_access_key`.
 
-There is no ticket yet in `docs/backlog/`. The history is the older feature folder `backlog/`
-(F0001 to F0037, 34 files, all `status: completed`; gitignored, local only). Compared with it:
+**Other settings** (stored plain): `default_tone`, `default_length`, `default_hashtags`, `emoji_usage`, `claude_model`, `make_webhook_url`, `areas_of_interest`, `theme`.
 
-**Feature files marked completed whose code is no longer there (removed on purpose):**
-F0003 LinkedIn post sync, F0007 LinkedIn API tier, F0008 engagement stats toggle and the LinkedIn
-parts of F0002 and F0005 ("View on LinkedIn" link, LinkedIn Share API) were removed by F0018.
-F0005's "schedule them for later" was never built (its own Out of scope excludes it).
+Encryption: AES-256-GCM with key derived from `ENCRYPTION_KEY` in `.env.local` using scrypt (D-05).
 
-**Code that no feature file or decision describes, or that looks wrong:**
+## Key decisions
 
-- **Migrations 0002 and 0003 are not in `drizzle/meta/_journal.json`.** The journal lists only
-  `0000_confused_penance` and `0001_add_image_columns`, and `drizzle-kit migrate` applies what the
-  journal lists. A fresh install from `scripts/setup.sh` may therefore lack `posts.image_path` (used
-  by every image route) and the three indexes. Verify on a clean clone before anything else.
-- `posts` in the data file still has `linkedin_id` (unique index), `linkedin_url`, `likes`,
-  `comments`, `shares` from `0000`; `schema.ts` no longer declares them.
-- `src/lib/db/migrate.ts` (`runMigrations`) is never called; `DATABASE_URL` in `.env.example` is
-  never read (the path is hard-coded in `src/lib/db/index.ts` and `drizzle.config.ts`).
-- `next` is `16.2.4` (Dependabot bump, CHANGELOG 0.4.4) while README and CLAUDE.md say Next.js 14
-  and `eslint-config-next` is `14.2.29`. Route handlers type `params` as a plain object and read it
-  synchronously, and `layout.tsx` calls `cookies()` synchronously. Next.js 15 made both asynchronous, as far as
-  recalled from its upgrade guide (https://nextjs.org/docs/app/guides/upgrading/version-15, not
-  re-read on 2026-10-21). Check that the app runs on 16 and whether these need `await`.
-- `/api/images/generate` hard-codes `claude-sonnet-4-6` for prompt writing instead of
-  `claude_model`.
-- `migrateImagesToFiles()` runs in the root layout on every page render, scanning all posts.
-- `GET /api/posts` has no `ORDER BY`; pages sort on the client. `/api/ideas` picks "last 5
-  published" by insertion order, not `published_at`.
-- `PUT /api/settings` stores any key it is sent; `PATCH /api/posts/:id` accepts any status
-  transition, including `published` without publishing.
-- The publish `fetch` has no timeout; a hanging Make.com call holds the request open.
-- `scripts/run.sh` starts `next dev` with no `--hostname`, and there is no sign-in. If the dev
-  server listens on all network interfaces (it prints a "Network" address when it does; not
-  verified on 2026-10-21), anyone who can reach the machine's port 3000 can use the app, including
-  publishing. Confirm and decide (see DECISIONS D-02).
-- `.gitignore` ignores `CLAUDE.md` and `.claude/`, so the agent rules in CLAUDE.md are local
-  only.
+See `docs/backlog/DECISIONS.md`:
 
-**Tickets not started whose work already seems to exist:** none (no tickets yet).
+- **D-01:** Next.js 14 (docs) / 16.2.4 (code) App Router, React 18, TypeScript strict.
+- **D-02:** Local-first, single user, no hosting, no auth. Features needing a backend are out of scope.
+- **D-03:** SQLite + Drizzle ORM + better-sqlite3, WAL mode, synchronous queries.
+- **D-04:** Pictures stored as files on disk (`data/images/post-<id>-<timestamp>.<ext>`), referenced from posts; legacy base64 migrated on startup.
+- **D-05:** Sensitive keys encrypted with AES-256-GCM, derived from ENCRYPTION_KEY in `.env.local`.
+- **D-06:** Publish to LinkedIn only through user's Make.com scenario; never direct LinkedIn.
+- **D-07:** Bring-your-own-key: Claude (Anthropic), DALL-E (OpenAI), stock photos (Unsplash), all optional except Claude.
+- **D-08:** Tailwind CSS, shadcn/ui, dark by default, light with cookie-based toggle.
+- **D-09:** Conventional Commits; owner releases with `./scripts/release.sh`; agents never push.
+- **D-10:** Backlog Standard v2; old `backlog/` folder (F0001–F0037) is history, not converted.
+
+## Gaps between code and backlog
+
+### Migrations not in journal
+
+**Impact: New installs may skip essential migrations.**
+
+- `drizzle/0002_add_indexes_and_cleanup.sql` (adds indexes on `status`, `published_at`, `created_at`) is not listed in `drizzle/meta/_journal.json`.
+- `drizzle/0003_add_image_path.sql` is also missing.
+
+**Evidence:** Both files exist in the directory but the journal does not reference them. When
+`npm run db:migrate` runs, migrations already in `meta/_journal.json` are skipped; if the journal
+is wrong, the migrations are skipped even if the database has not had them applied.
+
+**Action:** When a ticket takes on migrations, verify that the journal is updated correctly and
+that fresh installs pass all migrations.
+
+### Next.js upgrade: docs out of step
+
+**Impact: Minor; docs are stale.**
+
+- Code runs Next.js `16.2.4` (from `package.json` and `package-lock.json`, bumped by Dependabot in v0.4.4, April 2026).
+- `README.md`, `CLAUDE.md`, and `docs/backlog/DECISIONS.md` still say "Next.js 14".
+- eslint config is pinned to `14.2.29` (not bumped).
+
+**Evidence:** `next dev` runs Next 16 but generates no errors related to API changes (e.g.,
+`params` and `cookies()` in layouts/routes). Likely forward-compatible.
+
+**Action:** When a ticket updates documentation, confirm that Next.js 16 is intentional and
+update all references; decide whether to pin the lint config or bump it.
+
+### No test runner
+
+**Impact: No automated tests possible; first test ticket must set one up.**
+
+- `docs/backlog/README.md` rule 8: "The project has no test runner yet. The first ticket
+that needs tests sets one up and records the choice in DECISIONS.md and NFR.md."
+- `docs/backlog/NFR.md`, Maintainability: "Every ticket ships with tests" but "not enforceable
+yet: no test runner".
+
+**Evidence:** No test files in the codebase; no test runner in `package.json`.
+
+**Action:** The first ticket containing tests will choose a runner (Jest, Vitest, etc.) and
+document it.
+
+### App not bound to localhost (potential security issue)
+
+**Impact: If port 3000 is reachable from the network, anyone on the network can use the app.**
+
+- `docs/backlog/NFR.md`, Security and privacy: "Single user, no sign-in; the app is meant to
+be reached only from the user's machine. Not enforced: `next dev` is started without
+`--hostname` (open point)".
+- `scripts/run.sh` runs `npm run dev` without `--hostname localhost`.
+
+**Evidence:** `next dev` defaults to `0.0.0.0`; if the machine is on a network, the port is
+reachable from other machines. D-02 assumes local-only access.
+
+**Action:** A ticket on D-02 or operability should bind to `localhost` by default and
+document the tradeoff (development convenience vs. network exposure).
+
+### UI accessibility: missing aria-labels
+
+**Impact: Minor; some icon-only buttons are not announced to screen readers.**
+
+- `docs/backlog/NFR.md`, Accessibility: "Icon-only buttons carry an `aria-label`. Review;
+not yet true everywhere (picture remove buttons have none)".
+
+**Evidence:** `src/app/queue/page.tsx` and `src/app/compose/page.tsx` have image remove/delete
+buttons with only `<X />` icon, no label.
+
+**Action:** When improving accessibility, add `aria-label` to all icon-only buttons.
+
+### Earlier features not ticketed
+
+**Impact: None; they are built and working.**
+
+- Features F0001–F0037 (the old Backlog Standard v1 format) are in the root `backlog/` directory.
+- `docs/backlog/README.md` and ROADMAP say they are history and must not be moved, converted or
+referenced.
+- The product shipped with these features but the technical backlog has no epics or tickets yet.
+
+**Evidence:** `backlog/` exists with feature folders; `docs/backlog/ROADMAP.md` says "There are no
+epics yet, on purpose" and lists this as a candidate for planning.
+
+**Action:** Planning may decide to write epics and tickets for maintainability or refactoring
+work related to the shipped features, but the standard says not to convert the old folder.
+
+## No blockers to building new tickets
+
+No shipped code blocks tickets. Decisions D-01 through D-10 are locked; functional items may
+be written and planned into the first epic whenever the owner is ready.
+
+Version 0.4.6 is the baseline. The product is complete for its original use case (the owner
+posting regularly on LinkedIn) and open for what the owner plans next.
