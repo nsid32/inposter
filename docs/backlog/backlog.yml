@@ -1,0 +1,18 @@
+# Settings for the Backlog Standard (worksimplicity-backlog). See the standard's STANDARD.md.
+standard: 2
+name: InPoster
+# full: implementation-ready tickets (data model, API, tests). light: why, scope, criteria, tests.
+depth: full
+# What Done means for this project. Shown before a ticket is marked Done.
+done_definition: >-
+  Committed on main with a Conventional Commits message, npm run lint and the ticket's tests
+  pass, migrations (if any) apply to an existing data file and to a fresh one from
+  ./scripts/setup.sh, and the owner has checked it in the running app (./scripts/run.sh).
+  The owner releases it with ./scripts/release.sh; agents never push.
+# Where the app looks first when it reads what is built.
+code_paths: [src, drizzle, scripts]
+# The standing non-functional requirements every ticket respects.
+nfr_baseline: docs/backlog/NFR.md
+# More files shown beside the standard on the Standards page.
+guidelines:
+  - CONTRIBUTING.md

@@ -35,4 +35,4 @@ CLAUDE.local.md
 .claude/
 
 # ── Agent work products (local only) ─────────────────────────
-backlog/
+/backlog/
