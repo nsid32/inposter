@@ -12,7 +12,7 @@ depends_on: []
 
 A newcomer opening Settings for the first time sees a form with fields for five API keys and a webhook URL, with no indication of which are required, which they have already configured, or whether the ones they entered actually work. This blocks the path to first post: they do not know if they are ready to start writing or if they need to fix something first. They may start writing, then hit an error at publish time when it is too late to go back.
 
-A clear status view at the top of Settings answers the question: "Am I set up?"—and if not, what is blocking me?
+A clear status view at the top of Settings answers the question: "Am I set up?"—and if not, what is blocking me? 
 
 ## Scope
 
